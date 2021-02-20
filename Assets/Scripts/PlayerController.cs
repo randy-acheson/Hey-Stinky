@@ -6,8 +6,16 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
+using System.Net.Sockets;
+using System;
+using System.Net;
+using System.Threading;
+using System.ServiceModel;
+
 public class PlayerController : MonoBehaviour
 {
+    public GameObject playerPrefabNoCodeReal;
+
     public float speed = 8f;
     public float gravity = -9.81f;
     public float bounce = 0.04f;
@@ -24,14 +32,20 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded = true;
     private GameObject crystal;
 
+    private DateTime next_update = DateTime.Now;
+
     private Text uiText;
     private bool isClicking = false;
 
-    private string player_hash;
+    public string player_hash;
 
     private float[] sendPacket = new float[6];
-    
 
+    public object __lockObj = new object();
+    public List<String> to_add = new List<String>();
+
+    public Dictionary<String, GameObject> player_holder = new Dictionary<String, GameObject>();
+    
     void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
@@ -43,6 +57,9 @@ public class PlayerController : MonoBehaviour
         uiText = GetComponentInChildren<Text>();
 
         Cursor.lockState = CursorLockMode.Locked;
+
+        // client_connection = new ClientConnection(this);
+        // client_connection = gameObject.AddComponent<ClientConnection>(this) as ClientConnection;
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
@@ -54,8 +71,99 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public GameObject GetPlayer(String username) {
+        if (!player_holder.ContainsKey(username)) {
+            Debug.Log("instantiating player");
+            GameObject new_guy = null;
+            try {
+                new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+            catch (Exception e) {
+                Debug.Log(e);
+                Application.Quit();
+            }
+            Debug.Log("instantiated player");
+            player_holder[username] = new_guy;
+            Debug.Log(player_holder[username]);
+            return new_guy;
+        }
+        else {
+            Debug.Log("found player");
+            return player_holder[username];
+        }
+    }
+
+    public void HandlePlayerInteract(String username, String Object, byte action){
+        GameObject player = GameObject.Find(username);
+        if (player == null){
+            Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
+        }
+        GameObject.Find(Object).GetComponent<InteractiveObject>().OnPlayerInteract(player, action);
+    }
+    //////////////////
+
+    private Tuple<String, String> GetKeyVal(String something) {
+        List<String> stuff3 = new List<String>(something.Split(':'));
+        String val;
+        String key;
+        key = stuff3[0].Trim();
+        val = stuff3[1].Trim();
+        return new Tuple<String, String>(key, val);
+    }
+
+    private void process_thing(String msg) {
+        try {
+            GameObject remotePlayer = null;
+            List<String> stuff2 = new List<String>(msg.Split(','));
+
+            Dictionary<String, String> all_dict = new Dictionary<String, String>();
+            foreach (var something in stuff2) {
+                Tuple<String, String> lmaoo = GetKeyVal(something);
+                String key = lmaoo.Item1;
+                String val = lmaoo.Item2;
+
+                // if (key == "player_hash") {
+                    // remove later
+                    // val = val + "o";
+                // }
+                all_dict[key] = val;
+            }
+
+            if (all_dict["player_hash"] == player_hash) {
+                return;
+            }
+            Debug.Log("getting palyer");
+            remotePlayer = GetPlayer(all_dict["player_hash"]);
+
+            if (remotePlayer != null) {
+                Debug.Log("got player");
+                remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
+                // else if (key == "body_rotY") {
+                // else if (key == "body_rotZ") {
+                // else if (key == "head_rotX") {
+            }
+            else {
+                Debug.Log("couldnt find player");
+            }
+        }
+        catch (Exception e) {
+            Debug.Log(e);
+            Application.Quit();
+        }
+    }
+
     private void FixedUpdate()
     {
+        lock (__lockObj) {
+            foreach (var msg in to_add) {
+                process_thing(msg);
+            }
+        }
+
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
@@ -260,7 +368,8 @@ public class PlayerController : MonoBehaviour
         Vector3 player_xyz_pos = gameObject.transform.position;
         Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
         float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
-        return $"{{'body_posX:' '{player_xyz_pos.x}', 'body_posY:' '{player_xyz_pos.y}', 'body_posZ:' '{player_xyz_pos.z}', 'head_rotX:' '{head_x_rot}', 'body_rotY:' '{player_xyz_rot.y}', 'body_rotZ:' '{player_xyz_rot.z}'}}";
+        return $"player_hash: {player_hash}, body_posX: {player_xyz_pos.x}, body_posY: {player_xyz_pos.y}, " + 
+                $"body_posZ: {player_xyz_pos.z}, head_rotX: {head_x_rot}, body_rotY: {player_xyz_rot.y}, body_rotZ: {player_xyz_rot.z}";
     }
 
     public void hideInCloset(GameObject closet)
