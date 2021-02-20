@@ -6,60 +6,48 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-using System.Net.Sockets;
-using System;
-using System.Net;
-using System.Threading;
-using System.ServiceModel;
-
-public class PlayerController : MonoBehaviour
+public class MonsterController : MonoBehaviour
 {
-    public GameObject playerPrefabNoCodeReal;
-
     public float speed = 8f;
     public float gravity = -9.81f;
     public float bounce = 0.04f;
     public float mouseSensitivity = 0.1f;
+
+    public GameObject headBone;
     
     private Transform body;
     private Transform camera;
-    private Transform hand;
+    //private Transform hand;
     private CharacterController controller;
-    private Light flashlight;
+    //private Light flashlight;
     private float velY = 0f;
     private float rotX = 0;
     private float movement = 0f;
     private bool isGrounded = true;
     private GameObject crystal;
 
-    private DateTime next_update = DateTime.Now;
+    private Animator animator;
 
     private Text uiText;
     private bool isClicking = false;
 
-    public string player_hash;
+    private string player_hash;
 
     private float[] sendPacket = new float[6];
-
-    public object __lockObj = new object();
-    public List<String> to_add = new List<String>();
-
-    public Dictionary<String, GameObject> player_holder = new Dictionary<String, GameObject>();
     
+
     void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
-        camera = transform.GetChild(0);
-        body = transform.GetChild(1);
-        hand = camera.GetChild(0);
-        flashlight = hand.GetChild(0).GetComponent<Light>();
+        camera = headBone.transform;
+        body = transform.Find("crawler_low");
+        //hand = camera.GetChild(0);
         player_hash = generatePlayerHash();
         uiText = GetComponentInChildren<Text>();
 
         Cursor.lockState = CursorLockMode.Locked;
 
-        // client_connection = new ClientConnection(this);
-        // client_connection = gameObject.AddComponent<ClientConnection>(this) as ClientConnection;
+        animator = GetComponent<Animator>();
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
@@ -71,99 +59,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    public GameObject GetPlayer(String username) {
-        if (!player_holder.ContainsKey(username)) {
-            Debug.Log("instantiating player");
-            GameObject new_guy = null;
-            try {
-                new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
-            }
-            catch (Exception e) {
-                Debug.Log(e);
-                Application.Quit();
-            }
-            Debug.Log("instantiated player");
-            player_holder[username] = new_guy;
-            Debug.Log(player_holder[username]);
-            return new_guy;
-        }
-        else {
-            Debug.Log("found player");
-            return player_holder[username];
-        }
-    }
-
-    public void HandlePlayerInteract(String username, String Object, byte action){
-        GameObject player = GameObject.Find(username);
-        if (player == null){
-            Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
-        }
-        GameObject.Find(Object).GetComponent<InteractiveObject>().OnPlayerInteract(player, action);
-    }
-    //////////////////
-
-    private Tuple<String, String> GetKeyVal(String something) {
-        List<String> stuff3 = new List<String>(something.Split(':'));
-        String val;
-        String key;
-        key = stuff3[0].Trim();
-        val = stuff3[1].Trim();
-        return new Tuple<String, String>(key, val);
-    }
-
-    private void process_thing(String msg) {
-        try {
-            GameObject remotePlayer = null;
-            List<String> stuff2 = new List<String>(msg.Split(','));
-
-            Dictionary<String, String> all_dict = new Dictionary<String, String>();
-            foreach (var something in stuff2) {
-                Tuple<String, String> lmaoo = GetKeyVal(something);
-                String key = lmaoo.Item1;
-                String val = lmaoo.Item2;
-
-                // if (key == "player_hash") {
-                    // remove later
-                    // val = val + "o";
-                // }
-                all_dict[key] = val;
-            }
-
-            if (all_dict["player_hash"] == player_hash) {
-                return;
-            }
-            Debug.Log("getting palyer");
-            remotePlayer = GetPlayer(all_dict["player_hash"]);
-
-            if (remotePlayer != null) {
-                remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
-                // else if (key == "body_rotY") {
-                // else if (key == "body_rotZ") {
-                // else if (key == "head_rotX") {
-            }
-            else {
-                // Debug.Log("couldnt find player");
-            }
-        }
-        catch (Exception e) {
-            Debug.Log(e);
-            Application.Quit();
-        }
-    }
-
     private void FixedUpdate()
     {
-        lock (__lockObj) {
-            foreach (var msg in to_add) {
-                process_thing(msg);
-            }
-            to_add = new List<String>();
-        }
-
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
@@ -171,10 +68,12 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
         {
             Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.yellow, 5f, false);
+            //Debug.Log(hit.collider.gameObject.GetComponent<CrystalController>());
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
+//            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
             if (obj != null)
             {
-                //Debug.Log("hit "+hit.transform.name);
+                Debug.Log("hit "+hit.transform.name);
                 if (isClicking)
                 {
                     uiText.text = "";
@@ -234,7 +133,9 @@ public class PlayerController : MonoBehaviour
             if(Input.GetKeyDown(KeyCode.Space)){
                 velY = 4;
                 isGrounded = false;
-            }else{
+                animator.SetTrigger("jump");
+            }
+            else{
                 velY = 0;
             }
         }else{
@@ -243,6 +144,21 @@ public class PlayerController : MonoBehaviour
 
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         float posZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
+
+        if (Mathf.Abs(controller.velocity.x) > 0 || Mathf.Abs(controller.velocity.z) > 0)
+        {
+            if (speed > 5) {
+                animator.SetInteger("movementState", 2);
+            }
+            else
+            {
+                animator.SetInteger("movementState", 1);
+            }
+        }
+        else
+        {
+            animator.SetInteger("movementState", 0);
+        }
 
         if(isGrounded && (posX !=0 || posZ != 0))
         {
@@ -272,9 +188,9 @@ public class PlayerController : MonoBehaviour
 
         body.localPosition = new Vector3(horiBob*bounce*0.5f, 0.9f+vertBob*bounce, 0f);
         //body.transform.localRotation = Quaternion.Euler(0f, 0f, horiBob*-0.0244f);
-        camera.localPosition = new Vector3(horiBob*bounce*0.5f, 1.68f+vertBob*bounce, 0f);
+        //camera.localPosition = new Vector3(horiBob*bounce*0.5f, 1.68f+vertBob*bounce, 0f);
 
-        controller.Move(transform.right*posX + transform.forward*posZ + Vector3.up*posY);
+        controller.Move(transform.forward*posX - transform.right*posZ + Vector3.up*posY);
 
         sendPacket[0] = transform.position.x;
         sendPacket[1] = transform.position.y;
@@ -283,7 +199,7 @@ public class PlayerController : MonoBehaviour
         /////////////////////////////////
 
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseY = -1f * Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
         //Debug.Log("MouseX: " + Input.GetAxis("Mouse X") + ", sens: " + mouseSensitivity + ", time: " + Time.deltaTime + ", total: " + mouseX);
         rotX -= mouseY;
         rotX = Mathf.Clamp(rotX, -85f, 85f);
@@ -296,26 +212,16 @@ public class PlayerController : MonoBehaviour
 
         /////////////////////////////////
     
-        hand.localRotation = Quaternion.Euler(
-            90f + 1.5f*(Mathf.PerlinNoise(0, 1f*Time.time)-0.5f), 
-            1.5f*(Mathf.PerlinNoise(1f*Time.time, 0)-0.5f), 
-            0f);
+
 
         ////////////////////////////////
 
         if(Input.GetKeyDown(KeyCode.E)){
-            flashlight.enabled = !flashlight.enabled;
-            if(flashlight.enabled){
-                sendPacket[5] = 1f;
-            }else{
-                sendPacket[5] = 0f;
-            }
-            hand.gameObject.SetActive(!hand.gameObject.activeSelf);
+            animator.SetTrigger("attack");
         }
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 
-        flashlight.intensity = Mathf.Min(40f + noise*160f, 80f);
     }
 
     private void OnMouseDown()
@@ -353,19 +259,17 @@ public class PlayerController : MonoBehaviour
             if (!other.gameObject.GetComponent<CrystalController>().isDeposited)
             {
                 crystal = other.gameObject;
-                crystal.GetComponent<CrystalController>()
+                other.gameObject.GetComponent<CrystalController>()
                     .SetTransformParent(gameObject.transform);
-                crystal.transform.localPosition = new Vector3(0,0.5f,0.5f);
+                gameObject.transform.position = new Vector3(10, 10, 10);
             }
         }
         else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
         {
-            other.gameObject.GetComponent<ReceptacleScript>().AddCrystal(crystal);
+            crystal.GetComponent<CrystalController>()
+                .SetTransformParent(other.gameObject.transform);
+            crystal.GetComponent<CrystalController>().isDeposited = true;
             crystal = null;
-        }
-        else if (other.gameObject.CompareTag("Goal"))
-        {
-            Debug.Log("You win!");
         }
     }
 
@@ -373,8 +277,7 @@ public class PlayerController : MonoBehaviour
         Vector3 player_xyz_pos = gameObject.transform.position;
         Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
         float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
-        return $"player_hash: {player_hash}, body_posX: {player_xyz_pos.x}, body_posY: {player_xyz_pos.y}, " + 
-                $"body_posZ: {player_xyz_pos.z}, head_rotX: {head_x_rot}, body_rotY: {player_xyz_rot.y}, body_rotZ: {player_xyz_rot.z}";
+        return $"{{'body_posX:' '{player_xyz_pos.x}', 'body_posY:' '{player_xyz_pos.y}', 'body_posZ:' '{player_xyz_pos.z}', 'head_rotX:' '{head_x_rot}', 'body_rotY:' '{player_xyz_rot.y}', 'body_rotZ:' '{player_xyz_rot.z}'}}";
     }
 
     public void hideInCloset(GameObject closet)
