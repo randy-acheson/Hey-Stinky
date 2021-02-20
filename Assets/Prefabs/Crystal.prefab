@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 3883696593906606801}
   - component: {fileID: 3883696593906606812}
   - component: {fileID: 3883696593906606803}
-  - component: {fileID: 3883696593906606802}
   - component: {fileID: 3883696593906606813}
+  - component: {fileID: 3883696593906606802}
   m_Layer: 0
   m_Name: Crystal
   m_TagString: Crystal
@@ -83,19 +83,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &3883696593906606802
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3883696593906606800}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3883696593906606813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109,3 +96,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isDeposited: 0
+  hoverMessage: 
+--- !u!65 &3883696593906606802
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3883696593906606800}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
