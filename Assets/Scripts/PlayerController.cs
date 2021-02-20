@@ -126,10 +126,10 @@ public class PlayerController : MonoBehaviour
                 String key = lmaoo.Item1;
                 String val = lmaoo.Item2;
 
-                if (key == "player_hash") {
+                // if (key == "player_hash") {
                     // remove later
-                    val = val + "o";
-                }
+                    // val = val + "o";
+                // }
                 all_dict[key] = val;
             }
 
