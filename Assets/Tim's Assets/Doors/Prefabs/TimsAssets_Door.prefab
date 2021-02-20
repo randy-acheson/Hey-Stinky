@@ -151,7 +151,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e22a65451b9a24b4aa5c01baec27f89d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hoverMessage: 
+  openMessage: Close Door
+  closeMessage: Open Door
+  isOpen: 0
 --- !u!65 &8272393236447191413
 BoxCollider:
   m_ObjectHideFlags: 0
