@@ -204,6 +204,7 @@ public class PlayerController : MonoBehaviour
             }else{
                 sendPacket[5] = 0f;
             }
+            hand.gameObject.SetActive(!hand.gameObject.activeSelf);
         }
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
