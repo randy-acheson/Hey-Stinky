@@ -53,8 +53,9 @@ def update_addrs(new_addr):
     for remover in to_del:
         del addrs[remover]
 
+    if new_addr not in addrs:
+        print('added {}'.format(new_addr))
     addrs[new_addr] = time.time()
-    print('updated {}'.format(new_addr))
 
 while True:
     try:
@@ -62,12 +63,13 @@ while True:
         data, new_addr = sock_receieve.recvfrom(1024) # buffer size is 1024 bytes
 
         if data:
-            print("received message: {}, updating addrs, now sending back out to {}".format(data, addrs))
+            # print("received message: {}, updating addrs, now sending back out to {}".format(data, addrs))
             update_addrs(new_addr[0])
 
             for addr in addrs:
+                # if addr != new_addr:
                 sock_send.sendto(data, (addr, UDP_PORT_SEND))
-            print("sent out")
+            # print("sent out")
         else:
             print('receieved nothing, trying again')
     except KeyboardInterrupt:
