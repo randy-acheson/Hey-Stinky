@@ -12,6 +12,7 @@ public class ClosetDoorController : MonoBehaviour, InteractiveObject
     void Start()
     {
         animator = GetComponent<Animator>();
+        playersToHide = new List<GameObject>();
     }
 
     // Update is called once per frame

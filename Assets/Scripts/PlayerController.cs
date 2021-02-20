@@ -62,9 +62,9 @@ public class PlayerController : MonoBehaviour
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             //Debug.Log("Did Hit");
-            if (hit.transform.tag == "Interactive")
+            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
+            if (obj != null)
             {
-                InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
                 if (isClicking)
                 {
                     uiText.text = "";
@@ -72,18 +72,20 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    
                     uiText.text = obj.getHoverMessage();
                 }
             }
-            else
+            else if (uiText != null)
             {
                 uiText.text = "";
             }
         }
         else
         {
-            uiText.text = "";
+            if (uiText != null)
+            {
+                uiText.text = "";
+            }
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000, Color.white);
             //Debug.Log("Did not Hit");
         }
