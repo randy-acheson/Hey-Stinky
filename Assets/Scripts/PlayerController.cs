@@ -1,5 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
+
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -19,6 +22,8 @@ public class PlayerController : MonoBehaviour
     private float movement = 0f;
     private bool isGrounded = true;
 
+    private string player_hash;
+
     private float[] sendPacket = new float[6];
     
 
@@ -29,6 +34,7 @@ public class PlayerController : MonoBehaviour
         body = transform.GetChild(1);
         hand = camera.GetChild(0);
         flashlight = hand.GetChild(0).GetComponent<Light>();
+        player_hash = generatePlayerHash();
 
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -150,5 +156,18 @@ public class PlayerController : MonoBehaviour
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 
         flashlight.intensity = Mathf.Min(40f + noise*160f, 80f);
+    }
+
+    string generatePlayerHash() {
+        byte[] byte_hash;
+        using (HashAlgorithm algorithm = SHA256.Create()) {
+            byte_hash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(System.DateTime.Now.ToString()+System.Environment.MachineName));
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        foreach (byte b in byte_hash) {
+            sb.Append(b.ToString("X2"));
+        }
+        return sb.ToString();
     }
 }
