@@ -25,6 +25,7 @@ public class PlayerController : MonoBehaviour
     private GameObject crystal;
 
     private Text uiText;
+    private bool isClicking = false;
 
     private string player_hash;
 
@@ -64,7 +65,7 @@ public class PlayerController : MonoBehaviour
             if (hit.transform.tag == "Interactive")
             {
                 InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
-                if (Input.GetMouseButtonDown(0))
+                if (isClicking)
                 {
                     uiText.text = "";
                     obj.OnPlayerInteract(gameObject, 0);
@@ -86,6 +87,7 @@ public class PlayerController : MonoBehaviour
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000, Color.white);
             //Debug.Log("Did not Hit");
         }
+        isClicking = false;
     }
 
     void Update()
@@ -99,8 +101,13 @@ public class PlayerController : MonoBehaviour
             isGrounded = false;
         }
 
-        if(Input.GetKey(KeyCode.LeftControl)){
-            speed = 8;
+        if (Input.GetMouseButtonDown(0))
+        {
+            isClicking = true;
+        }
+
+        if (Input.GetKey(KeyCode.LeftControl)){
+        speed = 8;
         }else{
             speed = 4;
         }
