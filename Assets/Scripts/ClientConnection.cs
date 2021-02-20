@@ -1,18 +1,29 @@
 using UnityEngine;
+using System.Net.Sockets;
+using System;
+using System.Net;
+using System.Text;
 
 
 namespace Backrooms
 {
-    public class ClientConnection : MonoBehavior
+    public class ClientConnection : MonoBehaviour
     {
-        UdpClient client;
+        // UdpClient client;
         ClientConnection() {
-            client = new UdpClient(5005);
+            Debug.Log("construct");
+            // client = new UdpClient(5006);
+        }
+
+        void Start() {
+            Debug.Log("Start");
+            sendMessege();
         }
 
         void sendMessege() {
+            UdpClient client = new UdpClient(5006);
             try {
-                client.Connect("127.0.0.1", 5005);
+                client.Connect("127.0.0.1", 5006);
 
                 // Sends a message to the host to which you have connected.
                 Byte[] sendBytes = Encoding.ASCII.GetBytes("Is anybody there?");
