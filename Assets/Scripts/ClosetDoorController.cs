@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ClosetDoorController : MonoBehaviour, InteractiveObject
 {
-    public string hoverMessage;
+    public string hoverMessage;  
 
     private Animator animator;
     private List<GameObject> playersToHide;
