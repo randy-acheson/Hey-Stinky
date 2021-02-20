@@ -141,7 +141,7 @@ public class PlayerController : MonoBehaviour
 
             if (remotePlayer != null) {
                 Debug.Log("got player");
-                remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]) + 2);
+                remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
                 // else if (key == "body_rotY") {
                 // else if (key == "body_rotZ") {
                 // else if (key == "head_rotX") {
