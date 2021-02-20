@@ -15,8 +15,7 @@ public class UdpState {
 }
 
 
-public class ClientConnection : MonoBehaviour
-{
+public class ClientConnection : MonoBehaviour {
 
     public Dictionary<String, GameObject> player_holder = new Dictionary<String, GameObject>();
 
@@ -32,13 +31,9 @@ public class ClientConnection : MonoBehaviour
 
     IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-    public void Start() {
-        // Debug.Log("construct");
-        // client = new UdpClient(5006);
-
     void Start() {
         Debug.Log("Started Client Code");
-        AsyncTCPClient.StartClient();
+        // AsyncTCPClient.StartClient();
         receiveClient = new UdpClient(5005);
         senderClient = new UdpClient(5006);
 
@@ -53,7 +48,7 @@ public class ClientConnection : MonoBehaviour
         Debug.Log(parent_guy_script);
     }
 
-    public void Update() {
+    void Update() {
         if (next_update < DateTime.Now)
         {
             // send player stuff
@@ -74,7 +69,7 @@ public class ClientConnection : MonoBehaviour
     }
 
     
-    public void ReceiveCallback(IAsyncResult ar) {
+    void ReceiveCallback(IAsyncResult ar) {
         UdpClient u = ((UdpState)(ar.AsyncState)).client;
         IPEndPoint e = ((UdpState)(ar.AsyncState)).ip;
 
@@ -92,33 +87,11 @@ public class ClientConnection : MonoBehaviour
 
 
 
-    public void sendMessege(String message) {
+    void sendMessege(String message) {
         try {
             Byte[] sendBytes = Encoding.ASCII.GetBytes(message);
             // Debug.Log("sending update " + message);
             senderClient.Send(sendBytes, sendBytes.Length);
-
-            // Debug.Log("sendt update " + message);
-
-            // Sends a message to a different host using optional hostname and port parameters.
-            // UdpClient udpClientB = new UdpClient();
-            // udpClientB.Send(sendBytes, sendBytes.Length, "AlternateHostMachineName", 5005);
-
-            // IPEndPoint object will allow us to read datagrams sent from any source.
-
-            // Blocks until a message returns on this socket from a remote host.
-            // string returnData = Encoding.ASCII.GetString(receiveBytes);
-
-            // Uses the IPEndPoint object to determine which of these two hosts responded.
-            // Console.WriteLine("This is the message you received " +
-                                        // returnData.ToString());
-            // Console.WriteLine("This message was sent from " +
-                                        // RemoteIpEndPoint.Address.ToString() +
-                                        // " on their port number " +
-                                        // RemoteIpEndPoint.Port.ToString());
-
-            // client.Close();
-            // udpClientB.Close();
         }
 
         catch (Exception e ) {
