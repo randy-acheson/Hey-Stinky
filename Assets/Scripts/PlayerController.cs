@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
     private float rotX = 0;
     private float movement = 0f;
     private bool isGrounded = true;
+    private GameObject crystal;
 
     private string player_hash;
 
@@ -169,5 +170,24 @@ public class PlayerController : MonoBehaviour
             sb.Append(b.ToString("X2"));
         }
         return sb.ToString();
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Crystal") && crystal == null)
+        {
+            if (!other.gameObject.GetComponent<CrystalController>().isDeposited)
+            {
+                crystal = other.gameObject;
+                other.gameObject.GetComponent<CrystalController>()
+                    .SetTransformParent(gameObject.transform);
+            }
+        }
+        else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
+        {
+            crystal.GetComponent<CrystalController>()
+                .SetTransformParent(other.gameObject.transform);
+            crystal.GetComponent<CrystalController>().isDeposited = true;
+            crystal = null;
+        }
     }
 }
