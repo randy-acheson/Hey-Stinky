@@ -36,7 +36,7 @@ public class ClientConnection : MonoBehaviour
 
         ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5006); // endpoint where server is listening
         senderClient.Connect(ep);
-        receiveClient.Connect(ep);
+        // receiveClient.Connect(RemoteIpEndPoint);
     }
 
     void Update() {
