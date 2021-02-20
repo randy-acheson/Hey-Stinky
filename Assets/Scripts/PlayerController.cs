@@ -1,5 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
+
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -20,6 +23,8 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded = true;
     private GameObject crystal;
 
+    private string player_hash;
+
     private float[] sendPacket = new float[6];
     
 
@@ -30,6 +35,7 @@ public class PlayerController : MonoBehaviour
         body = transform.GetChild(1);
         hand = camera.GetChild(0);
         flashlight = hand.GetChild(0).GetComponent<Light>();
+        player_hash = generatePlayerHash();
 
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -153,6 +159,18 @@ public class PlayerController : MonoBehaviour
         flashlight.intensity = Mathf.Min(40f + noise*160f, 80f);
     }
 
+    string generatePlayerHash() {
+        byte[] byte_hash;
+        using (HashAlgorithm algorithm = SHA256.Create()) {
+            byte_hash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(System.DateTime.Now.ToString()+System.Environment.MachineName));
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        foreach (byte b in byte_hash) {
+            sb.Append(b.ToString("X2"));
+        }
+        return sb.ToString();
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Crystal") && crystal == null)
@@ -171,5 +189,12 @@ public class PlayerController : MonoBehaviour
             crystal.GetComponent<CrystalController>().isDeposited = true;
             crystal = null;
         }
+    }
+
+    public string getPositionDict() {
+        Vector3 player_xyz_pos = gameObject.transform.position;
+        Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
+        float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
+        return $"{{'body_posX:' '{player_xyz_pos.x}', 'body_posY:' '{player_xyz_pos.y}', 'body_posZ:' '{player_xyz_pos.z}', 'head_rotX:' '{head_x_rot}', 'body_rotY:' '{player_xyz_rot.y}', 'body_rotZ:' '{player_xyz_rot.z}'}}";
     }
 }
