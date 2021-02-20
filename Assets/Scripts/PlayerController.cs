@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     private float rotX = 0;
     private float movement = 0f;
     private bool isGrounded = true;
+    private GameObject crystal;
 
     private float[] sendPacket = new float[6];
     
@@ -150,5 +151,25 @@ public class PlayerController : MonoBehaviour
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 
         flashlight.intensity = Mathf.Min(40f + noise*160f, 80f);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Crystal") && crystal == null)
+        {
+            if (!other.gameObject.GetComponent<CrystalController>().isDeposited)
+            {
+                crystal = other.gameObject;
+                other.gameObject.GetComponent<CrystalController>()
+                    .SetTransformParent(gameObject.transform);
+            }
+        }
+        else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
+        {
+            crystal.GetComponent<CrystalController>()
+                .SetTransformParent(other.gameObject.transform);
+            crystal.GetComponent<CrystalController>().isDeposited = true;
+            crystal = null;
+        }
     }
 }
