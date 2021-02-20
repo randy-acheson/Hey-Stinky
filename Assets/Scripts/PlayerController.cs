@@ -74,31 +74,6 @@ public class PlayerController : MonoBehaviour
 
     //////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void blerp(String key, float val, GameObject playerObject) {
-        // Debug.Log(key + ',' + val);
-        
-        if (key == "body_posX") {
-            val = val + 1f;
-            playerObject.transform.position = new Vector3(val,  playerObject.transform.position.y, playerObject.transform.position.z);
-        }
-        else if (key == "body_posY") {
-            playerObject.transform.position = new Vector3(playerObject.transform.position.x,  val, playerObject.transform.position.z);            
-        }
-        else if (key == "body_posZ") {
-            val = val + 1f;
-            playerObject.transform.position = new Vector3(playerObject.transform.position.x,  playerObject.transform.position.y, val);
-        }
-        else if (key == "body_rotY") {
-
-        }
-        else if (key == "body_rotZ") {
-
-        }
-        else if (key == "head_rotX") {
-
-        }
-        Debug.Log(playerObject.transform);
-    }
 
     public GameObject GetPlayer(String username) {
         if (!player_holder.ContainsKey(username)) {
@@ -131,36 +106,48 @@ public class PlayerController : MonoBehaviour
     }
     //////////////////
 
+    private Tuple<String, String> GetKeyVal(String something) {
+        List<String> stuff3 = new List<String>(something.Split(':'));
+        String val;
+        String key;
+        key = stuff3[0].Trim();
+        val = stuff3[1].Trim();
+        return new Tuple<String, String>(key, val);
+    }
+
     private void process_thing(String msg) {
         try {
             GameObject remotePlayer = null;
             List<String> stuff2 = new List<String>(msg.Split(','));
+
+            Dictionary<String, String> all_dict = new Dictionary<String, String>();
             foreach (var something in stuff2) {
-                List<String> stuff3 = new List<String>(something.Split(':'));
+                Tuple<String, String> lmaoo = GetKeyVal(something);
+                String key = lmaoo.Item1;
+                String val = lmaoo.Item2;
 
-                if (stuff3.Count == 2) {
-                    String key = stuff3[0].Trim();
-                    String val = stuff3[1].Trim();
-
-                    if (key == "player_hash") {
-                        val = val + "o";
-
-                        if (player_hash == val) {
-                            break;
-                        }
-                        else {
-                            Debug.Log("getting palyer");
-                            remotePlayer = GetPlayer(key);
-                            Debug.Log("got player");
-                            // Debug.Log(remotePlayer);
-                        }
-                    }
-                    else {
-                        if (remotePlayer != null) {
-                            blerp(key, float.Parse(val), remotePlayer);
-                        }
-                    }
+                if (key == "player_hash") {
+                    // remove later
+                    val = val + "o";
                 }
+                all_dict[key] = val;
+            }
+
+            if (all_dict["player_hash"] == player_hash) {
+                return;
+            }
+            Debug.Log("getting palyer");
+            remotePlayer = GetPlayer(all_dict["player_hash"]);
+
+            if (remotePlayer != null) {
+                Debug.Log("got player");
+                remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]) + 2);
+                // else if (key == "body_rotY") {
+                // else if (key == "body_rotZ") {
+                // else if (key == "head_rotX") {
+            }
+            else {
+                Debug.Log("couldnt find player");
             }
         }
         catch (Exception e) {
@@ -174,7 +161,6 @@ public class PlayerController : MonoBehaviour
         lock (__lockObj) {
             foreach (var msg in to_add) {
                 process_thing(msg);
-
             }
         }
 

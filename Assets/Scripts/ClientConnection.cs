@@ -38,7 +38,7 @@ public class ClientConnection : MonoBehaviour
         receiveClient = new UdpClient(5005);
         senderClient = new UdpClient(5006);
 
-        IPEndPoint ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5006); // endpoint where server is listening
+        IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.61"), 5006); // endpoint where server is listening
         senderClient.Connect(ep);
 
         parent_guy = GameObject.Find("playerPrefab");
@@ -55,7 +55,7 @@ public class ClientConnection : MonoBehaviour
             // send player stuff
             String ok = parent_guy_script.getPositionDict();
             sendMessege(ok);
-            next_update = DateTime.Now + TimeSpan.FromSeconds(.1);
+            next_update = DateTime.Now + TimeSpan.FromSeconds(.2);
 
             // recieve player stuff
             if (messageReceived == true) {
