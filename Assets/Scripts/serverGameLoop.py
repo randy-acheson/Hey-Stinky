@@ -67,6 +67,7 @@ while True:
             update_addrs(new_addr[0])
 
             for addr in addrs:
+                # if addr != new_addr:
                 sock_send.sendto(data, (addr, UDP_PORT_SEND))
             # print("sent out")
         else:

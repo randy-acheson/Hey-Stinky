@@ -68,6 +68,7 @@ public class ClientConnection : MonoBehaviour {
         }
     }
 
+    public DateTime nextPrint = DateTime.Now; 
     
     void ReceiveCallback(IAsyncResult ar) {
         UdpClient u = ((UdpState)(ar.AsyncState)).client;
@@ -76,7 +77,10 @@ public class ClientConnection : MonoBehaviour {
         byte[] receiveBytes = u.EndReceive(ar, ref e);
         string receiveString = Encoding.ASCII.GetString(receiveBytes);
 
-        // Debug.Log($"I GOT SOMETHING: {receiveString}");
+        if (nextPrint < DateTime.Now) {
+            Debug.Log($"I GOT SOMETHING: {receiveString}");
+            nextPrint = DateTime.Now + TimeSpan.FromSeconds(10);
+        }
 
 
         lock (parent_guy_script.__lockObj) {

@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
 
     public GameObject GetPlayer(String username) {
         if (!player_holder.ContainsKey(username)) {
-            Debug.Log("instantiating player");
+            Debug.Log("instantiating player named: " + username);
             GameObject new_guy = null;
             try {
                 new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
@@ -86,13 +86,13 @@ public class PlayerController : MonoBehaviour
                 Debug.Log(e);
                 Application.Quit();
             }
-            Debug.Log("instantiated player");
+            Debug.Log("instantiated player: " + username);
             player_holder[username] = new_guy;
             Debug.Log(player_holder[username]);
             return new_guy;
         }
         else {
-            Debug.Log("found player");
+            // Debug.Log("found player");
             return player_holder[username];
         }
     }
@@ -136,7 +136,7 @@ public class PlayerController : MonoBehaviour
             if (all_dict["player_hash"] == player_hash) {
                 return;
             }
-            Debug.Log("getting palyer");
+            // Debug.Log("getting palyer");
             remotePlayer = GetPlayer(all_dict["player_hash"]);
 
             if (remotePlayer != null) {
