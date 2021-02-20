@@ -8,13 +8,15 @@ using UnityEngine.UI;
 
 public class MonsterController : MonoBehaviour
 {
-    public float speed = 8f;
+    public float speed = 4f;
     public float gravity = -9.81f;
     public float bounce = 0.04f;
     public float mouseSensitivity = 0.1f;
 
     public GameObject headBone;
     
+    private float maxSpeed;
+
     private Transform body;
     private Transform camera;
     //private Transform hand;
@@ -48,6 +50,7 @@ public class MonsterController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
 
         animator = GetComponent<Animator>();
+        maxSpeed = speed;
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
@@ -118,15 +121,15 @@ public class MonsterController : MonoBehaviour
         }
 
         if (Input.GetKey(KeyCode.LeftControl)){
-        speed = 8;
+        speed = maxSpeed;
         }else{
-            speed = 4;
+            speed = maxSpeed/2;
         }
 
         if(Input.GetKey(KeyCode.LeftShift)){
-            speed = 8;
+            speed = maxSpeed;
         }else{
-            speed = 4;
+            speed = maxSpeed/2;
         }
 
         if(isGrounded){
@@ -147,7 +150,7 @@ public class MonsterController : MonoBehaviour
 
         if (Mathf.Abs(controller.velocity.x) > 0 || Mathf.Abs(controller.velocity.z) > 0)
         {
-            if (speed > 5) {
+            if (speed > 2.5) {
                 animator.SetInteger("movementState", 2);
             }
             else
