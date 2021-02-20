@@ -25,7 +25,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1000010055107056}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: -0.078459024, w: 0.99691737}
   m_LocalPosition: {x: 0.6195, y: -0.041279998, z: 1.7479963}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -35,7 +35,7 @@ Transform:
   - {fileID: 4000013016911106}
   m_Father: {fileID: 4000013859883750}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -9}
 --- !u!33 &33000012452501076
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -95,6 +95,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4000013859883750}
   - component: {fileID: 95000012944575982}
+  - component: {fileID: 3452285500740418459}
   m_Layer: 0
   m_Name: TimsAssets_Door
   m_TagString: Untagged
@@ -128,7 +129,7 @@ Animator:
   m_GameObject: {fileID: 1000010346633862}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b5bc5b0b8f28ed54691ddf2ee184bc2e, type: 2}
+  m_Controller: {fileID: 9100000, guid: 511fc27008d5dfd408d96687f8876af2, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -137,6 +138,19 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &3452285500740418459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000010346633862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e73712203c96a145ba67a794e812d26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverMessage: 
 --- !u!1 &1000010487714768
 GameObject:
   m_ObjectHideFlags: 0

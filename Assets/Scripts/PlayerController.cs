@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -23,6 +24,9 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded = true;
     private GameObject crystal;
 
+    private Text uiText;
+    private bool isClicking = false;
+
     private string player_hash;
 
     private float[] sendPacket = new float[6];
@@ -36,6 +40,7 @@ public class PlayerController : MonoBehaviour
         hand = camera.GetChild(0);
         flashlight = hand.GetChild(0).GetComponent<Light>();
         player_hash = generatePlayerHash();
+        uiText = GetComponentInChildren<Text>();
 
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -48,7 +53,47 @@ public class PlayerController : MonoBehaviour
             velY = 0;
         }
     }
-    
+
+    private void FixedUpdate()
+    {
+        RaycastHit hit;
+        // Does the ray intersect any objects excluding the player layer
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
+            //Debug.Log("Did Hit");
+            var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
+//            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
+            if (obj != null)
+            {
+                Debug.Log("Found InteractiveObject");
+                if (isClicking)
+                {
+                    uiText.text = "";
+                    obj.OnPlayerInteract(gameObject, 0);
+                }
+                else
+                {
+                    uiText.text = obj.getHoverMessage();
+                }
+            }
+            else if (uiText != null)
+            {
+                uiText.text = "";
+            }
+        }
+        else
+        {
+            if (uiText != null)
+            {
+                uiText.text = "";
+            }
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000, Color.white);
+            //Debug.Log("Did not Hit");
+        }
+        isClicking = false;
+    }
+
     void Update()
     {
         if (Input.GetKey(KeyCode.Escape))
@@ -60,8 +105,13 @@ public class PlayerController : MonoBehaviour
             isGrounded = false;
         }
 
-        if(Input.GetKey(KeyCode.LeftControl)){
-            speed = 8;
+        if (Input.GetMouseButtonDown(0))
+        {
+            isClicking = true;
+        }
+
+        if (Input.GetKey(KeyCode.LeftControl)){
+        speed = 8;
         }else{
             speed = 4;
         }
@@ -159,6 +209,22 @@ public class PlayerController : MonoBehaviour
         flashlight.intensity = Mathf.Min(40f + noise*160f, 80f);
     }
 
+    private void OnMouseDown()
+    {
+        RaycastHit hit;
+        // Does the ray intersect any objects excluding the player layer
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
+            //Debug.Log("Did Hit");
+            if (hit.transform.CompareTag("Interactive"))
+            {
+                InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
+                obj.OnPlayerInteract(gameObject, 0);
+            }
+        }
+    }
+
     string generatePlayerHash() {
         byte[] byte_hash;
         using (HashAlgorithm algorithm = SHA256.Create()) {
@@ -180,6 +246,7 @@ public class PlayerController : MonoBehaviour
                 crystal = other.gameObject;
                 other.gameObject.GetComponent<CrystalController>()
                     .SetTransformParent(gameObject.transform);
+                gameObject.transform.position = new Vector3(10, 10, 10);
             }
         }
         else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
