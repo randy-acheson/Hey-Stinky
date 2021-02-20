@@ -1,8 +1,9 @@
-
+import signal
 import socket
+import sys
 import threading
 
-HOST_ADDR = "192.168.86.46"
+HOST_ADDR = "192.168.86.61"
 TCP_PORT = 7777
 
 subscribers = set()
@@ -20,14 +21,26 @@ def serverStartup():
 
 def spawnTCPConnection(connection):
     while True:
-        tcp_data = connection.recv(4096)
-        print("TCP Received:", tcp_data)
-        for s in subscribers:
-            s.sendall(tcp_data)
-        if not tcp_data:
+        try:
+            tcp_data = connection.recv(4096)
+        except:
+            break
+
+        print("TCP Received: ", tcp_data)
+        if (not tcp_data or tcp_data==b'exit'):
             print("Connection Killed")
             break
+        for s in subscribers:
+            s.sendall(tcp_data)
+
+    subscribers.remove(connection)
     connection.close()
-    exit()
+    sys.exit(0)
+
+def signal_handler(sig, frame):
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 serverStartup()

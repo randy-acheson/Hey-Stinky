@@ -8,7 +8,7 @@ class boop:
     lol = time.time()
 main_alive = boop()
 
-UDP_IP = "127.0.0.1"
+UDP_IP = "192.168.86.61"
 UDP_PORT_SEND = 5005
 UDP_PORT_RECIEVE = 5006
 
@@ -24,10 +24,6 @@ sock_send = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 
 
-sock_send.bind((UDP_IP, UDP_PORT_SEND))
-sock_send.settimeout(1);
-
-
 class SendStuff(threading.Thread):
     def __init__(self, main_alive):
         super(SendStuff, self).__init__()
@@ -36,6 +32,7 @@ class SendStuff(threading.Thread):
     def run(self):
         while True:
             if main_alive.lol < (time.time() - 5):
+                print('inner thread exiting')
                 exit()
             time.sleep(.2)
             the_string_thing = str(random.randint(1, 5))
@@ -43,15 +40,36 @@ class SendStuff(threading.Thread):
             sock_send.sendto(str.encode(the_string_thing), (UDP_IP, UDP_PORT_SEND))
 
 
-x = SendStuff(main_alive)
-x.start()
+# x = SendStuff(main_alive)
+# x.start()
 
+addrs = {}
+def update_addrs(new_addr):
+    to_del = []
+    for a, val in addrs.items():
+        if (time.time() - 5) > val:
+            to_del.append(a)
+    
+    for remover in to_del:
+        del addrs[remover]
+
+    addrs[new_addr] = time.time()
+    print('updated {}'.format(new_addr))
 
 while True:
     try:
         main_alive.lol = time.time()
-        data, addr = sock_receieve.recvfrom(1024) # buffer size is 1024 bytes
-        print("received message: %s" % data)
+        data, new_addr = sock_receieve.recvfrom(1024) # buffer size is 1024 bytes
+
+        if data:
+            print("received message: {}, updating addrs, now sending back out to {}".format(data, addrs))
+            update_addrs(new_addr[0])
+
+            for addr in addrs:
+                sock_send.sendto(data, (addr, UDP_PORT_SEND))
+            print("sent out")
+        else:
+            print('receieved nothing, trying again')
     except KeyboardInterrupt:
         print('should be killing')
         x.join()
