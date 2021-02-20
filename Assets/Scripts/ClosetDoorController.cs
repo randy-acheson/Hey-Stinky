@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ClosetDoorController : MonoBehaviour, InteractiveObject
 {
-    public string hoverMessage;  
+    public string hoverMessage;
 
     private Animator animator;
     private List<GameObject> playersToHide;
@@ -21,8 +21,17 @@ public class ClosetDoorController : MonoBehaviour, InteractiveObject
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("Door_open"))
         {
             foreach (GameObject player in playersToHide) {
-                player.transform.position = new Vector3(-12.5f, -7.2f, -17.8f);
-                player.transform.rotation.eulerAngles.Set(0f, 67.3f, 0f);
+                Debug.Log("hiding player");
+
+                //player.transform.parent = (this.gameObject.transform);
+                //player.transform.position = new Vector3(1f, 1f, 1f);
+                //player.transform.rotation.eulerAngles.Set(0f, 67.3f, 0f);
+                //player.transform.localRotation.eulerAngles.Set(0f, 67.3f, 0f);
+                //((PlayerController) player).hideInCloset(gameObject);
+                //PlayerController playerCont = (PlayerController)player;
+                //player.GetComponent<PlayerController>().hideInCloset(gameObject);
+                player.transform.Find("Head").transform.position = new Vector3(1f, 1f, 1f);
+                player.transform.Find("Body").transform.position = new Vector3(1f, 1f, 1f);
             }
             animator.SetBool("open", false);
             playersToHide.Clear();
