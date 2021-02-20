@@ -36,7 +36,7 @@ public class ClientConnection : MonoBehaviour
 
         ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5006); // endpoint where server is listening
         senderClient.Connect(ep);
-        receiveClient.Connect(ep);
+        // receiveClient.Connect(RemoteIpEndPoint);
     }
 
     void Update() {
@@ -55,6 +55,26 @@ public class ClientConnection : MonoBehaviour
         Debug.Log($"Received: {receiveString}");
         messageReceived = true;
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void HandlePlayerTransform(String username, Vector3 position){
+        GameObject player = GameObject.Find(username);
+        if(player == null){
+            Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        }
+        player.transform.position = position;
+    }
+
+    public void HandlePlayerInteract(String username, String Object, byte action){
+        GameObject player = GameObject.Find(username);
+        if(player == null){
+            Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        }
+        gameObject.GetComponent<InteractiveObject>().OnPlayerInteract(gameObject, action);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
     public class UdpState {
         public UdpClient client;
