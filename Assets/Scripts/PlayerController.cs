@@ -140,14 +140,13 @@ public class PlayerController : MonoBehaviour
             remotePlayer = GetPlayer(all_dict["player_hash"]);
 
             if (remotePlayer != null) {
-                Debug.Log("got player");
                 remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
                 // else if (key == "body_rotY") {
                 // else if (key == "body_rotZ") {
                 // else if (key == "head_rotX") {
             }
             else {
-                Debug.Log("couldnt find player");
+                // Debug.Log("couldnt find player");
             }
         }
         catch (Exception e) {
@@ -162,6 +161,7 @@ public class PlayerController : MonoBehaviour
             foreach (var msg in to_add) {
                 process_thing(msg);
             }
+            to_add = new List<String>();
         }
 
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
