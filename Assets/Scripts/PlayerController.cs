@@ -190,4 +190,11 @@ public class PlayerController : MonoBehaviour
             crystal = null;
         }
     }
+
+    public string getPositionDict() {
+        Vector3 player_xyz_pos = gameObject.transform.position;
+        Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
+        float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
+        return $"{{'body_posX:' '{player_xyz_pos.x}', 'body_posY:' '{player_xyz_pos.y}', 'body_posZ:' '{player_xyz_pos.z}', 'head_rotX:' '{head_x_rot}', 'body_rotY:' '{player_xyz_rot.y}', 'body_rotZ:' '{player_xyz_rot.z}'}}";
+    }
 }
