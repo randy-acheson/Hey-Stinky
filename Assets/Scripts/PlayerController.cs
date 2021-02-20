@@ -56,17 +56,19 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
-        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
+        //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
+        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
         {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
-            //Debug.Log("Did Hit");
+            Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.yellow, 5f, false);
+            //Debug.Log(hit.collider.gameObject.GetComponent<CrystalController>());
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
 //            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
             if (obj != null)
             {
-                Debug.Log("Found InteractiveObject");
+                Debug.Log("hit "+hit.transform.name);
                 if (isClicking)
                 {
                     uiText.text = "";
@@ -88,7 +90,7 @@ public class PlayerController : MonoBehaviour
             {
                 uiText.text = "";
             }
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000, Color.white);
+            Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
             //Debug.Log("Did not Hit");
         }
         isClicking = false;
@@ -217,7 +219,7 @@ public class PlayerController : MonoBehaviour
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             //Debug.Log("Did Hit");
-            if (hit.transform.CompareTag("Interactive"))
+            if (hit.transform.tag == "Interactive")
             {
                 InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
                 obj.OnPlayerInteract(gameObject, 0);
@@ -263,5 +265,10 @@ public class PlayerController : MonoBehaviour
         Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
         float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
         return $"{{'body_posX:' '{player_xyz_pos.x}', 'body_posY:' '{player_xyz_pos.y}', 'body_posZ:' '{player_xyz_pos.z}', 'head_rotX:' '{head_x_rot}', 'body_rotY:' '{player_xyz_rot.y}', 'body_rotZ:' '{player_xyz_rot.z}'}}";
+    }
+
+    public void hideInCloset(GameObject closet)
+    {
+        transform.position = closet.transform.position;
     }
 }

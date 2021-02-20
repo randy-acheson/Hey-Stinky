@@ -28,6 +28,7 @@ public class CrystalController : MonoBehaviour, InteractiveObject
 
     public void OnPlayerInteract(GameObject player, byte actionNum)
     {
+        Debug.Log("Clicked crystal");
         return;
     }
 }
