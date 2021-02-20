@@ -215,7 +215,7 @@ public class PlayerController : MonoBehaviour
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             //Debug.Log("Did Hit");
-            if (hit.transform.tag == "Interactive")
+            if (hit.transform.CompareTag("Interactive"))
             {
                 InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
                 obj.OnPlayerInteract(gameObject, 0);
