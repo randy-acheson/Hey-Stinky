@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameStateScript : MonoBehaviour
 {
     public GameObject crystals;
+    public GameObject goal;
     public int numCrystals;
 
     // Start is called before the first frame update
@@ -25,6 +26,6 @@ public class GameStateScript : MonoBehaviour
 
     public void OpenPortal()
     {
-        Debug.Log("Portal open!");
+        goal.SetActive(true);
     }
 }
