@@ -63,12 +63,10 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
         {
             Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.yellow, 5f, false);
-            //Debug.Log(hit.collider.gameObject.GetComponent<CrystalController>());
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
-//            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
             if (obj != null)
             {
-                Debug.Log("hit "+hit.transform.name);
+                //Debug.Log("hit "+hit.transform.name);
                 if (isClicking)
                 {
                     uiText.text = "";
@@ -253,9 +251,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
         {
-            crystal.GetComponent<CrystalController>()
-                .SetTransformParent(other.gameObject.transform);
-            crystal.GetComponent<CrystalController>().isDeposited = true;
+            other.gameObject.GetComponent<ReceptacleScript>().AddCrystal(crystal);
             crystal = null;
         }
     }
