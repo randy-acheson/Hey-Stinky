@@ -62,9 +62,11 @@ public class PlayerController : MonoBehaviour
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             //Debug.Log("Did Hit");
-            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
+            var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
+//            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
             if (obj != null)
             {
+                Debug.Log("Found InteractiveObject");
                 if (isClicking)
                 {
                     uiText.text = "";
@@ -244,6 +246,7 @@ public class PlayerController : MonoBehaviour
                 crystal = other.gameObject;
                 other.gameObject.GetComponent<CrystalController>()
                     .SetTransformParent(gameObject.transform);
+                gameObject.transform.position = new Vector3(10, 10, 10);
             }
         }
         else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
