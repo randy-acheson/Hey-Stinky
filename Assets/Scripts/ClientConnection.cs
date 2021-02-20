@@ -1,116 +1,99 @@
 using UnityEngine;
-// using UnityEngine.CoreModule;
 using System.Net.Sockets;
 using System;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.ServiceModel;
-// using System.ServiceModel.Channels;
+using System.Collections.Generic;
+
+
+public class UdpState {
+    public UdpClient client;
+    public IPEndPoint ip;
+}
 
 
 public class ClientConnection : MonoBehaviour
 {
-    ClientConnection() {
-        // Debug.Log("construct");
-        // client = new UdpClient(5006);
-    }
 
+    public Dictionary<String, GameObject> player_holder = new Dictionary<String, GameObject>();
 
+    public GameObject playerPrefabNoCodeReal;
     UdpClient senderClient;
     UdpClient receiveClient;
-    int times_happened = 0;
     DateTime next_update = DateTime.Now;
-    // BufferManager m_bufferManager;
     const int opsToPreAlloc = 2;
     const int bufferSize = 1024;
     bool messageReceived = true;
+    GameObject parent_guy;
+    PlayerController parent_guy_script;
 
     IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
-    IPEndPoint ep;
 
+    public void Start() {
+        // Debug.Log("construct");
+        // client = new UdpClient(5006);
 
-    void Start() {
         receiveClient = new UdpClient(5005);
         senderClient = new UdpClient(5006);
 
-        ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5006); // endpoint where server is listening
+        IPEndPoint ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5006); // endpoint where server is listening
         senderClient.Connect(ep);
-        // receiveClient.Connect(RemoteIpEndPoint);
+
+        parent_guy = GameObject.Find("playerPrefab");
+        Debug.Log(parent_guy);
+        parent_guy_script = parent_guy.GetComponent<PlayerController>();
+        Debug.Log(parent_guy_script);
+        parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
+        Debug.Log(parent_guy_script);
     }
 
-    void Update() {
-        UpdateServerWithInfo("john", new Vector3(0, 0, 0));
+    public void Update() {
+        if (next_update < DateTime.Now)
+        {
+            // send player stuff
+            String ok = parent_guy_script.getPositionDict();
+            sendMessege(ok);
+            next_update = DateTime.Now + TimeSpan.FromSeconds(.1);
+
+            // recieve player stuff
+            if (messageReceived == true) {
+                UdpState state = new UdpState();
+                state.ip = RemoteIpEndPoint;
+                state.client = receiveClient;
+                receiveClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
+                messageReceived = false;
+                // next_update = DateTime.Now + TimeSpan.FromSeconds(.1);
+            }
+        }
     }
 
     
-    public void ReceiveCallback(IAsyncResult ar)
-    {
+    public void ReceiveCallback(IAsyncResult ar) {
         UdpClient u = ((UdpState)(ar.AsyncState)).client;
         IPEndPoint e = ((UdpState)(ar.AsyncState)).ip;
 
         byte[] receiveBytes = u.EndReceive(ar, ref e);
         string receiveString = Encoding.ASCII.GetString(receiveBytes);
 
-        Debug.Log($"Received: {receiveString}");
+        // Debug.Log($"I GOT SOMETHING: {receiveString}");
+
+
+        lock (parent_guy_script.__lockObj) {
+            parent_guy_script.to_add.Add(receiveString);
+        }
         messageReceived = true;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void HandlePlayerTransform(String username, Vector3 position){
-        GameObject player = GameObject.Find(username);
-        if(player == null){
-            //Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-        }
-        player.transform.position = position;
-    }
 
-    public void HandlePlayerInteract(String username, String Object, byte action){
-        GameObject player = GameObject.Find(username);
-        if(player == null){
-            //Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-        }
-        gameObject.GetComponent<InteractiveObject>().OnPlayerInteract(gameObject, action);
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public class UdpState {
-        public UdpClient client;
-        public IPEndPoint ip;
-    }
-
-    void UpdateServerWithInfo(String playerName, Vector3 position) {
-        if (next_update < DateTime.Now)
-        {
-            // send player stuff
-            String the_str = playerName + ':' + position.ToString();
-            sendMessege(the_str);
-            next_update = DateTime.Now + TimeSpan.FromSeconds(.1);
-            times_happened++;
-
-            // recieve player stuff
-
-            if (messageReceived == true)
-            {
-                Debug.Log("starting listening");
-                UdpState state = new UdpState();
-                state.ip = RemoteIpEndPoint;
-                state.client = receiveClient;
-                receiveClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
-                messageReceived = false;
-            }
-        }
-    }
-
-    void sendMessege(String message) {
+    public void sendMessege(String message) {
         try {
             Byte[] sendBytes = Encoding.ASCII.GetBytes(message);
-            Debug.Log("sending update " + message);
+            // Debug.Log("sending update " + message);
             senderClient.Send(sendBytes, sendBytes.Length);
-
-            Debug.Log("sendt update " + message);
+            // Debug.Log("sendt update " + message);
 
             // Sends a message to a different host using optional hostname and port parameters.
             // UdpClient udpClientB = new UdpClient();

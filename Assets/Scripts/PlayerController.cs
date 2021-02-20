@@ -6,8 +6,16 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
+using System.Net.Sockets;
+using System;
+using System.Net;
+using System.Threading;
+using System.ServiceModel;
+
 public class PlayerController : MonoBehaviour
 {
+    public GameObject playerPrefabNoCodeReal;
+
     public float speed = 8f;
     public float gravity = -9.81f;
     public float bounce = 0.04f;
@@ -24,14 +32,20 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded = true;
     private GameObject crystal;
 
+    private DateTime next_update = DateTime.Now;
+
     private Text uiText;
     private bool isClicking = false;
 
-    private string player_hash;
+    public string player_hash;
 
     private float[] sendPacket = new float[6];
-    
 
+    public object __lockObj = new object();
+    public List<String> to_add = new List<String>();
+
+    public Dictionary<String, GameObject> player_holder = new Dictionary<String, GameObject>();
+    
     void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
@@ -43,6 +57,9 @@ public class PlayerController : MonoBehaviour
         uiText = GetComponentInChildren<Text>();
 
         Cursor.lockState = CursorLockMode.Locked;
+
+        // client_connection = new ClientConnection(this);
+        // client_connection = gameObject.AddComponent<ClientConnection>(this) as ClientConnection;
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
@@ -54,8 +71,113 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void blerp(String key, float val, GameObject playerObject) {
+        // Debug.Log(key + ',' + val);
+        
+        if (key == "body_posX") {
+            val = val + 1f;
+            playerObject.transform.position = new Vector3(val,  playerObject.transform.position.y, playerObject.transform.position.z);
+        }
+        else if (key == "body_posY") {
+            playerObject.transform.position = new Vector3(playerObject.transform.position.x,  val, playerObject.transform.position.z);            
+        }
+        else if (key == "body_posZ") {
+            val = val + 1f;
+            playerObject.transform.position = new Vector3(playerObject.transform.position.x,  playerObject.transform.position.y, val);
+        }
+        else if (key == "body_rotY") {
+
+        }
+        else if (key == "body_rotZ") {
+
+        }
+        else if (key == "head_rotX") {
+
+        }
+        Debug.Log(playerObject.transform);
+    }
+
+    public GameObject GetPlayer(String username) {
+        if (!player_holder.ContainsKey(username)) {
+            Debug.Log("instantiating player");
+            GameObject new_guy = null;
+            try {
+                new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+            catch (Exception e) {
+                Debug.Log(e);
+                Application.Quit();
+            }
+            Debug.Log("instantiated player");
+            player_holder[username] = new_guy;
+            Debug.Log(player_holder[username]);
+            return new_guy;
+        }
+        else {
+            Debug.Log("found player");
+            return player_holder[username];
+        }
+    }
+
+    public void HandlePlayerInteract(String username, String Object, byte action){
+        GameObject player = GameObject.Find(username);
+        if (player == null){
+            Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
+        }
+        GameObject.Find(Object).GetComponent<InteractiveObject>().OnPlayerInteract(player, action);
+    }
+    //////////////////
+
+    private void process_thing(String msg) {
+        try {
+            GameObject remotePlayer = null;
+            List<String> stuff2 = new List<String>(msg.Split(','));
+            foreach (var something in stuff2) {
+                List<String> stuff3 = new List<String>(something.Split(':'));
+
+                if (stuff3.Count == 2) {
+                    String key = stuff3[0].Trim();
+                    String val = stuff3[1].Trim();
+
+                    if (key == "player_hash") {
+                        val = val + "o";
+
+                        if (player_hash == val) {
+                            break;
+                        }
+                        else {
+                            Debug.Log("getting palyer");
+                            remotePlayer = GetPlayer(key);
+                            Debug.Log("got player");
+                            // Debug.Log(remotePlayer);
+                        }
+                    }
+                    else {
+                        if (remotePlayer != null) {
+                            blerp(key, float.Parse(val), remotePlayer);
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            Debug.Log(e);
+            Application.Quit();
+        }
+    }
+
     private void FixedUpdate()
     {
+        lock (__lockObj) {
+            foreach (var msg in to_add) {
+                process_thing(msg);
+
+            }
+        }
+
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
         if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
@@ -262,6 +384,7 @@ public class PlayerController : MonoBehaviour
         Vector3 player_xyz_pos = gameObject.transform.position;
         Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
         float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
-        return $"{{'body_posX:' '{player_xyz_pos.x}', 'body_posY:' '{player_xyz_pos.y}', 'body_posZ:' '{player_xyz_pos.z}', 'head_rotX:' '{head_x_rot}', 'body_rotY:' '{player_xyz_rot.y}', 'body_rotZ:' '{player_xyz_rot.z}'}}";
+        return $"player_hash: {player_hash}, body_posX: {player_xyz_pos.x}, body_posY: {player_xyz_pos.y}, " + 
+                $"body_posZ: {player_xyz_pos.z}, head_rotX: {head_x_rot}, body_rotY: {player_xyz_rot.y}, body_rotZ: {player_xyz_rot.z}";
     }
 }
