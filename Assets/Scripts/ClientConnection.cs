@@ -61,7 +61,7 @@ public class ClientConnection : MonoBehaviour
     public void HandlePlayerTransform(String username, Vector3 position){
         GameObject player = GameObject.Find(username);
         if(player == null){
-            Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            //Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         }
         player.transform.position = position;
     }
@@ -69,7 +69,7 @@ public class ClientConnection : MonoBehaviour
     public void HandlePlayerInteract(String username, String Object, byte action){
         GameObject player = GameObject.Find(username);
         if(player == null){
-            Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            //Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         }
         gameObject.GetComponent<InteractiveObject>().OnPlayerInteract(gameObject, action);
     }
