@@ -21,12 +21,13 @@ def serverStartup():
 def spawnTCPConnection(connection):
     while True:
         tcp_data = connection.recv(4096)
-        print("TCP Received:", tcp_data)
+        print("TCP Received: ", tcp_data)
         for s in subscribers:
             s.sendall(tcp_data)
         if not tcp_data:
             print("Connection Killed")
             break
+    subscribers.remove(connection)
     connection.close()
     exit()
 
