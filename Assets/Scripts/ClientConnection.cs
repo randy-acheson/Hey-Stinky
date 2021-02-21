@@ -117,17 +117,27 @@ public class ClientConnection : MonoBehaviour {
         if(Input.GetKeyDown(KeyCode.P)){
             if (monster_controller_script == null) {
                 GameObject player = GameObject.Find("playerPrefab");
+                if (player == null) {
+                    Debug.Log("player is null");
+                    UnityEditor.EditorApplication.isPlaying = false;
+                }
                 player_controller_script = null;
 
                 Destroy(player);
                 GameObject new_monster = Instantiate(crawlerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+                new_monster.name = "crawlerPrefab";
             }
             else if (player_controller_script == null) {
-                GameObject monster = GameObject.Find("playerPrefab");
+                GameObject monster = GameObject.Find("crawlerPrefab");
+                if (monster == null) {
+                    Debug.Log("monster is null");
+                    UnityEditor.EditorApplication.isPlaying = false;
+                }
                 monster_controller_script = null;
 
                 Destroy(monster);
-                GameObject new_monster = Instantiate(playerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+                GameObject new_player = Instantiate(playerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+                new_player.name = "playerPrefab";
             }
             current_creature_script = null;
             assignCreatureIfNull();
