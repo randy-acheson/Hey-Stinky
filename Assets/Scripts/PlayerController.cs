@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
     public string character;
 
     private bool isDead;
+    private bool gameStarted = false;
     
     private Transform body;
     private Transform camera;
@@ -211,12 +212,19 @@ public class PlayerController : MonoBehaviour, CreatureBase
 
         if(Input.GetKeyDown(KeyCode.L))
         {
-            GameStart("Monster");
+            GameStartInitiate("Monster");
         }
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 
         flashlight.intensity = Mathf.Min(0.5f*flashlightIntensity + (noise*4f*flashlightIntensity), flashlightIntensity);
+    
+        /////////////////////
+        
+        if (gameStarted && FindObjectOfType<ClientConnection>().rSeed != null)
+        {
+            StartGame();
+        }
     }
 
     private void OnMouseDown()
@@ -282,7 +290,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         }
     }
 
-    public void GameStart(string character)
+    public void GameStartInitiate(string character)
     {
         this.character = character;
         Debug.Log("You are " + character);
@@ -292,6 +300,11 @@ public class PlayerController : MonoBehaviour, CreatureBase
             // create and send seed
         }
 
+        gameStarted = true;
+    }
+
+    private void StartGame()
+    {
         var newPos = GameObject.Find("PlayerSpawns")
             .GetComponent<PlayerSpawnsController>().GetSpawn(69);
         controller.Move(newPos - gameObject.transform.position);

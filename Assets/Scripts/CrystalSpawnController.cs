@@ -30,7 +30,7 @@ public class CrystalSpawnController : MonoBehaviour
         
     }
 
-    public void SpawnCrystals(Int32 seed)
+    public void SpawnCrystals(int? seed)
     {
         var r = new System.Random(seed);
         var randomValues = Enumerable.Range(0, allSpawns.Count)

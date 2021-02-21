@@ -33,9 +33,7 @@ public class ClientConnection : MonoBehaviour {
 
     IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-    public Int32 rSeed;
-
-
+    public int? rSeed = null;
 
     public object udp_lock = new object();
     public object tcp_lock = new object();

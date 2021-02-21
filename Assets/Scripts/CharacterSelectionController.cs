@@ -77,7 +77,7 @@ public class CharacterSelectionController : MonoBehaviour
                 .GetComponent<PlayerController>().get_player_hash();
             var myCharacter = GetCharacterFromPlayerHash(myHash);
             GameObject.Find("playerPrefab")
-                .GetComponent<PlayerController>().GameStart(myCharacter);
+                .GetComponent<PlayerController>().GameStartInitiate(myCharacter);
         }
     }
 
