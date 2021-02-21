@@ -49,13 +49,13 @@ public class DictCommandEvaluator {
             {
                 GameObject.Find("CharacterSelectors")
                     .GetComponent<CharacterSelectionController>()
-                    .CharacterSelected(args["character"]);            
+                    .CharacterSelectedResponse(args);            
             }
             else
             {
                 GameObject.Find("CharacterSelectors")
                     .GetComponent<CharacterSelectionController>()
-                    .CharacterDeselected(args["character"]);
+                    .CharacterDeselectedResponse(args);
             }
             
         }

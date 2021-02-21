@@ -263,38 +263,28 @@ public class PlayerController : MonoBehaviour, CreatureBase
         }
         else if (other.gameObject.CompareTag("CharacterSelect"))
         {
-            character = GameObject.Find("CharacterSelectors")
+            GameObject.Find("CharacterSelectors")
                 .GetComponent<CharacterSelectionController>()
-                .GetCharacter(other.gameObject);
-
-            CharacterSelectTCP(character, false);
+                .SelectCharacter(other.gameObject, player_hash);
         }
-    }
-
-    private void CharacterSelectTCP(string character, bool deselect)
-    {
-        Dictionary<string, string> tcpCharacterSelectCmd = new Dictionary<string, string>
-        {
-            ["function"] = "selectCharacter",
-            ["playerHash"] = player_hash,
-            ["deselect"] = deselect.ToString(),
-            ["character"] = character
-        };
-        AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpCharacterSelectCmd));
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.CompareTag("CharacterSelect"))
         {
-            CharacterSelectTCP(null, true);
+            GameObject.Find("CharacterSelectors")
+                .GetComponent<CharacterSelectionController>()
+                .DeselectCharacter(other.gameObject, player_hash);
         }
     }
 
-    public void GameStart()
+    public void GameStart(string character)
     {
+        this.character = character;
         var newPos = GameObject.Find("SpawnPoint").transform.position;
         controller.Move(newPos - gameObject.transform.position);
+        Debug.Log("You are " + character);
     }
 
     public Dictionary<String, String> getPositionDict() {
