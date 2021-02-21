@@ -71,7 +71,7 @@ public class MulticastConnection : MonoBehaviour
                                      ProtocolType.Udp);
 
             // Get the local IP address used by the listener and the sender to
-            IPAddress localIPAddr = IPAddress.Parse("127.0.0.1");
+            IPAddress localIPAddr = IPAddress.Parse("192.168.86.39");
 
             // Create an IPEndPoint object.
             IPEndPoint IPlocal = new IPEndPoint(localIPAddr, 0);

@@ -353,15 +353,19 @@ public class PlayerController : MonoBehaviour
             if (!other.gameObject.GetComponent<CrystalController>().isDeposited)
             {
                 crystal = other.gameObject;
-                other.gameObject.GetComponent<CrystalController>()
+                crystal.GetComponent<CrystalController>()
                     .SetTransformParent(gameObject.transform);
-                gameObject.transform.position = new Vector3(10, 10, 10);
+                crystal.transform.localPosition = new Vector3(0,0.5f,0.5f);
             }
         }
         else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
         {
             other.gameObject.GetComponent<ReceptacleScript>().AddCrystal(crystal);
             crystal = null;
+        }
+        else if (other.gameObject.CompareTag("Goal"))
+        {
+            Debug.Log("You win!");
         }
     }
 
