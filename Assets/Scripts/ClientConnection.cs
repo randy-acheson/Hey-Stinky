@@ -53,12 +53,20 @@ public class ClientConnection : MonoBehaviour {
         Debug.Log("started first listen");
     }
 
+    public String dictmuncher(Dictionary<String, String> dict) {
+        List<String> to_join = new List<String>(); 
+        foreach(KeyValuePair<String, String> entry in dict) {
+            to_join.Add(entry.Key + ":" + entry.Value);
+        }
+        return String.Join(",", to_join);
+    }
+
     void Update() {
         if (next_update < DateTime.Now)
         {
             // send player stuff
-            String ok = parent_guy_script.getPositionDict();
-            sendMessege(ok);
+            Dictionary<String, String> ok = parent_guy_script.getPositionDict();
+            sendMessege(dictmuncher(ok));
             next_update = DateTime.Now + TimeSpan.FromSeconds(.01);
 
             // // recieve player stuff

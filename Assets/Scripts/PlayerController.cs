@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour
     private Text uiText;
     private bool isClicking = false;
 
-    public string player_hash;
+    public String player_hash;
 
     private float[] sendPacket = new float[6];
 
@@ -147,8 +147,8 @@ public class PlayerController : MonoBehaviour
 
             if (remotePlayer != null) {
                 remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
-                remotePlayer.transform.rotation = Quaternion.Euler(remotePlayer.transform.rotation.x, float.Parse(all_dict["body_rotY"]), remotePlayer.transform.rotation.z);
-                remotePlayer.transform.GetChild(0).rotation = Quaternion.Euler(float.Parse(all_dict["head_rotX"]), remotePlayer.transform.rotation.y, remotePlayer.transform.rotation.z);
+                remotePlayer.transform.rotation = Quaternion.Euler(0, float.Parse(all_dict["body_rotY"]), 0);
+                remotePlayer.transform.GetChild(0).localRotation = Quaternion.Euler(float.Parse(all_dict["head_rotX"]), 0, 0);
             }
         }
         catch (Exception e) {
@@ -388,16 +388,27 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public string getPositionDict() {
+    public Dictionary<String, String> getPositionDict() {
         Vector3 player_xyz_pos = gameObject.transform.position;
         Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
         float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
-        return $"player_hash: {player_hash}, body_posX: {player_xyz_pos.x}, body_posY: {player_xyz_pos.y}, " + 
-                $"body_posZ: {player_xyz_pos.z}, head_rotX: {head_x_rot}, body_rotY: {player_xyz_rot.y}, body_rotZ: {player_xyz_rot.z}";
+
+        Dictionary<String, String> dict = new Dictionary<String, String> {
+            {"player_hash", player_hash},
+            {"body_posX", player_xyz_pos.x.ToString()},
+            {"body_posY", player_xyz_pos.y.ToString()},
+            {"body_posZ", player_xyz_pos.z.ToString()},
+            {"head_rotX", head_x_rot.ToString()},
+            {"body_rotY", player_xyz_rot.y.ToString()},
+            {"body_rotZ", player_xyz_rot.z.ToString()},
+        };
+
+        return dict;
+        // return $"player_hash: {player_hash}, body_posX: {player_xyz_pos.x}, body_posY: {player_xyz_pos.y}, " + 
+                // $"body_posZ: {player_xyz_pos.z}, head_rotX: {head_x_rot}, body_rotY: {player_xyz_rot.y}, body_rotZ: {player_xyz_rot.z}";
     }
 
-    public void hideInCloset(GameObject closet)
-    {
+    public void hideInCloset(GameObject closet) {
         transform.position = closet.transform.position;
     }
 }
