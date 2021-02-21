@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
 
     public GameObject GetPlayer(String username) {
         if (!player_holder.ContainsKey(username)) {
-            Debug.Log("instantiating player");
+            Debug.Log("instantiating player named: " + username);
             GameObject new_guy = null;
             try {
                 new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
@@ -86,13 +86,13 @@ public class PlayerController : MonoBehaviour
                 Debug.Log(e);
                 Application.Quit();
             }
-            Debug.Log("instantiated player");
+            Debug.Log("instantiated player: " + username);
             player_holder[username] = new_guy;
             Debug.Log(player_holder[username]);
             return new_guy;
         }
         else {
-            Debug.Log("found player");
+            // Debug.Log("found player");
             return player_holder[username];
         }
     }
@@ -136,11 +136,13 @@ public class PlayerController : MonoBehaviour
             if (all_dict["player_hash"] == player_hash) {
                 return;
             }
-            Debug.Log("getting palyer");
+            // Debug.Log("getting palyer");
             remotePlayer = GetPlayer(all_dict["player_hash"]);
 
             if (remotePlayer != null) {
                 remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
+                remotePlayer.transform.rotation = Quaternion.Euler(remotePlayer.transform.rotation.x, float.Parse(all_dict["body_rotY"]), remotePlayer.transform.rotation.z);
+                remotePlayer.transform.GetChild(0).rotation = Quaternion.Euler(float.Parse(all_dict["head_rotX"]), remotePlayer.transform.rotation.y, remotePlayer.transform.rotation.z);
                 // else if (key == "body_rotY") {
                 // else if (key == "body_rotZ") {
                 // else if (key == "head_rotX") {
@@ -158,10 +160,12 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         lock (__lockObj) {
+            // Debug.Log(to_add.Count);
             foreach (var msg in to_add) {
                 process_thing(msg);
             }
             to_add = new List<String>();
+            // Debug.Log(to_add.Count);
         }
 
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
