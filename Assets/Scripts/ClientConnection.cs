@@ -18,7 +18,9 @@ public class UdpState {
 public class ClientConnection : MonoBehaviour {
 
     public GameObject playerPrefabNoCodeReal;
+    public GameObject playerWithCode;
     public GameObject crawler;
+    public GameObject crawlerWithCode;
     UdpClient senderClient;
     UdpClient receiveClient;
     DateTime next_update = DateTime.Now;
@@ -108,6 +110,26 @@ public class ClientConnection : MonoBehaviour {
             sendMessege(dictmuncher(ok));
             next_update = DateTime.Now + TimeSpan.FromSeconds(.01);
         }
+
+        if(Input.GetKeyDown(KeyCode.P)){
+            if (monster_controller_script == null) {
+                GameObject player = GameObject.Find("playerPrefab");
+                player_controller_script = null;
+
+                Destroy(player);
+                GameObject new_monster = Instantiate(crawlerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+            }
+            else if (player_controller_script == null) {
+                GameObject monster = GameObject.Find("playerPrefab");
+                monster_controller_script = null;
+
+                Destroy(monster);
+                GameObject new_monster = Instantiate(playerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+            }
+            current_creature_script = null;
+            assignCreatureIfNull();
+        }
+
     }
 
     public GameObject GetRemotePlayer(String username, String prefabname="default_lmao") {
