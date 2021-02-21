@@ -287,11 +287,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
     {
         if (other.gameObject.CompareTag("CharacterSelect"))
         {
-            character = GameObject.Find("CharacterSelectors")
-                .GetComponent<CharacterSelectionController>()
-                .CharacterDeselected(other.gameObject);
-
-            CharacterSelectTCP(character, true);
+            CharacterSelectTCP(null, true);
         }
     }
 

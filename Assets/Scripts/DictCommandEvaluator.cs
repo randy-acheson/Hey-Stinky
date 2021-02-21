@@ -45,7 +45,7 @@ public class DictCommandEvaluator {
             {
                 parent_guy_script.character = args["character"];
             }
-            if (args["deselect"] == "True")
+            if (args["deselect"] == "False")
             {
                 GameObject.Find("CharacterSelectors")
                     .GetComponent<CharacterSelectionController>()
