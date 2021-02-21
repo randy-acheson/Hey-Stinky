@@ -47,6 +47,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
     void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
+        headBone = gameObject.transform.Find("Armature/Bone/Bone.003/Bone.004/Bone.005/Bone.006/HeadObject").gameObject;
         camera = headBone.transform;
         body = transform.Find("crawler_low");
         //hand = camera.GetChild(0);
@@ -54,6 +55,8 @@ public class MonsterController : MonoBehaviour, CreatureBase
         uiText = GetComponentInChildren<Text>();
 
         Cursor.lockState = CursorLockMode.Locked;
+
+        headBone = gameObject.transform.Find("Armature/Bone/Bone.003/Bone.004/Bone.005/Bone.006/HeadObject").gameObject;
 
         animator = GetComponent<Animator>();
         maxSpeed = speed;
