@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
     private float movement = 0f;
     private bool isGrounded = true;
     private GameObject crystal;
+    private string character;
 
     private DateTime next_update = DateTime.Now;
 
@@ -400,6 +401,28 @@ public class PlayerController : MonoBehaviour
             Debug.Log("You win!");
             audioData.Play(0);
         }
+        else if (other.gameObject.CompareTag("CharacterSelect"))
+        {
+            character = GameObject.Find("CharacterSelectors")
+                .GetComponent<CharacterSelectionController>()
+                .CharacterSelected(other.gameObject);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.CompareTag("CharacterSelect"))
+        {
+            character = GameObject.Find("CharacterSelectors")
+                .GetComponent<CharacterSelectionController>()
+                .CharacterDeselected(other.gameObject);
+        }
+    }
+
+    public void GameStart()
+    {
+        var newPos = GameObject.Find("SpawnPoint").transform.position;
+        controller.Move(newPos - gameObject.transform.position);
     }
 
     public Dictionary<String, String> getPositionDict() {
