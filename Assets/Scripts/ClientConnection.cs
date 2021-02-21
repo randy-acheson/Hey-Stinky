@@ -160,7 +160,7 @@ public class AsyncTCPClient {
     private static void SendCallback(IAsyncResult ar) {  
         Socket s_tcp = (Socket) ar.AsyncState;  
 
-        int bytesSent = s_tcp.EndSend(ar);  
+        int bytesSent = s_tcp.EndSend(ar);
     }
 
     private static void ReceiveCallback( IAsyncResult ar ) {
