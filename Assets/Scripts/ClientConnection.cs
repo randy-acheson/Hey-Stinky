@@ -40,7 +40,7 @@ public class ClientConnection : MonoBehaviour {
         IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.61"), 5006); // endpoint where server is listening
         senderClient.Connect(ep);
 
-        parent_guy = GameObject.Find("Player");
+        parent_guy = GameObject.Find("playerPrefab");
         Debug.Log(parent_guy);
         parent_guy_script = parent_guy.GetComponent<PlayerController>();
         Debug.Log(parent_guy_script);
