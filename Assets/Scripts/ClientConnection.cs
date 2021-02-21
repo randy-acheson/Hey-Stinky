@@ -67,9 +67,11 @@ public class ClientConnection : MonoBehaviour {
             tryLoadCreatureScripts();
 
             if (monster_controller_script != null) {
+                Debug.Log("Assigning current creature to crawler");
                 current_creature_script = monster_controller_script;
             }
             else if (player_controller_script != null) {
+                Debug.Log("Assigning current creature to player");
                 current_creature_script = player_controller_script;
             }
             else {
@@ -81,7 +83,9 @@ public class ClientConnection : MonoBehaviour {
 
     public void tryLoadCreatureScripts() {
         try {
-            player_controller_script = GameObject.FindObjectOfType<PlayerController>();
+            GameObject player = GameObject.Find("playerPrefab");
+            player_controller_script = player.GetComponent<PlayerController>();
+            Debug.Log("found this while looking for player controller script: " + player_controller_script.ToString());
         }
         catch (Exception e) {
             Debug.Log(e);
@@ -89,7 +93,9 @@ public class ClientConnection : MonoBehaviour {
         }
 
         try {
-            monster_controller_script = GameObject.FindObjectOfType<MonsterController>();
+            GameObject crawler = GameObject.Find("crawlerPrefab");
+            monster_controller_script = crawler.GetComponent<MonsterController>();
+            Debug.Log("found this while looking for monster controller script: " + monster_controller_script.ToString());
         }
         catch (Exception e) {
             Debug.Log(e);
@@ -117,18 +123,37 @@ public class ClientConnection : MonoBehaviour {
         if(Input.GetKeyDown(KeyCode.P)){
             if (monster_controller_script == null) {
                 GameObject player = GameObject.Find("playerPrefab");
+                if (player == null) {
+                    Debug.Log("player is null");
+                    UnityEditor.EditorApplication.isPlaying = false;
+                }
+
+                Vector3 old_position = player.transform.position;
+
+                DestroyImmediate(player);
+                DestroyImmediate(player_controller_script);
                 player_controller_script = null;
 
-                Destroy(player);
-                GameObject new_monster = Instantiate(crawlerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+                GameObject new_monster = Instantiate(crawlerWithCode, old_position, Quaternion.identity);
+                new_monster.name = "crawlerPrefab";
             }
             else if (player_controller_script == null) {
-                GameObject monster = GameObject.Find("playerPrefab");
+                GameObject monster = GameObject.Find("crawlerPrefab");
+                if (monster == null) {
+                    Debug.Log("monster is null");
+                    UnityEditor.EditorApplication.isPlaying = false;
+                }
+
+                Vector3 old_position = monster.transform.position;
+
+                DestroyImmediate(monster);
+                DestroyImmediate(monster_controller_script);
                 monster_controller_script = null;
 
-                Destroy(monster);
-                GameObject new_monster = Instantiate(playerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+                GameObject new_player = Instantiate(playerWithCode, old_position, Quaternion.identity);
+                new_player.name = "playerPrefab";
             }
+
             current_creature_script = null;
             assignCreatureIfNull();
         }
@@ -190,7 +215,7 @@ public class ClientConnection : MonoBehaviour {
 
             foreach (var name in to_die) {
                 Debug.Log("REMOVING: " + name);
-                Destroy(player_holder[name].Item1);
+                DestroyImmediate(player_holder[name].Item1);
                 player_holder.Remove(name);
             }
         }
@@ -307,7 +332,7 @@ public class ClientConnection : MonoBehaviour {
 }
 
 public class AsyncTCPClient {
-    private const string SERVER_ADDR = "192.168.86.46";
+    private const string SERVER_ADDR = "192.168.86.61";
     private const int PORT = 7777;
 
     private static ManualResetEvent connectDone = 
