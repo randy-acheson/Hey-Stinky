@@ -25,7 +25,7 @@ public class DictCommandEvaluator {
         try {
             GameObject player = parent_guy_script.GetPlayer(args["playerHash"]);
             if (player != parent_guy_script.gameObject) {
-                Transform target_hand = player.transform.Find("Head").Find("Hand");
+                Transform target_hand = player.transform.Find("Head/Hand");
                 target_hand.gameObject.SetActive((bool) (args["isLightOn"]=="True"));
             }
         }
