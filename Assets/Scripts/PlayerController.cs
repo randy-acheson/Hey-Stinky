@@ -141,6 +141,8 @@ public class PlayerController : MonoBehaviour
 
             if (remotePlayer != null) {
                 remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
+                remotePlayer.transform.rotation = Quaternion.Euler(remotePlayer.transform.rotation.x, float.Parse(all_dict["body_rotY"]), remotePlayer.transform.rotation.z);
+                remotePlayer.transform.GetChild(0).rotation = Quaternion.Euler(float.Parse(all_dict["head_rotX"]), remotePlayer.transform.rotation.y, remotePlayer.transform.rotation.z);
                 // else if (key == "body_rotY") {
                 // else if (key == "body_rotZ") {
                 // else if (key == "head_rotX") {

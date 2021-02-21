@@ -60,7 +60,7 @@ public class ClientConnection : MonoBehaviour {
             // send player stuff
             String ok = parent_guy_script.getPositionDict();
             sendMessege(ok);
-            next_update = DateTime.Now + TimeSpan.FromSeconds(.03);
+            next_update = DateTime.Now + TimeSpan.FromSeconds(.01);
 
             // // recieve player stuff
             // if (messageReceived == true) {
