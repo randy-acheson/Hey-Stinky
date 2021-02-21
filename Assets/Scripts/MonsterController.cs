@@ -56,15 +56,27 @@ public class MonsterController : MonoBehaviour
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        //Debug.Log("hit: " + hit.normal);
         if(hit.normal.y > 0.5){
             isGrounded = true;
+            isWalled = false;
             gravity = -9.81f;
         }
-        else if (Mathf.Abs(hit.normal.x) > 0.5 || Mathf.Abs(hit.normal.z) > 0.5) {
+        else if (!isGrounded && (Mathf.Abs(hit.normal.x) > 0.5 || Mathf.Abs(hit.normal.z) > 0.5)) {
             isWalled = true;
-            transform.Rotate(90f * hit.normal);
+
+            Vector3 target = transform.forward - Vector3.Dot(transform.forward, hit.normal) * hit.normal;
+            //if (target.y < 0)
+            //{
+            //    target.y = 0.1f;
+            //}
+            //target = target + transform.position;
+            //transform.LookAt(target, Vector3.up);
+            transform.rotation = Quaternion.LookRotation(target.normalized, hit.normal);
+            //transform.rotation = Quaternion.FromToRotation(transform.up, hit.normal);
             //transform.rotation.eulerAngles.Set(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, -90f);
             gravity = 0;
+            //Debug.Log("wall: " + target);
         }
         else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
@@ -73,13 +85,12 @@ public class MonsterController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
         //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
         {
-            Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.yellow, 5f, false);
+            //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.yellow, 5f, false);
             //Debug.Log(hit.collider.gameObject.GetComponent<CrystalController>());
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
 //            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
@@ -107,7 +118,7 @@ public class MonsterController : MonoBehaviour
             {
                 uiText.text = "";
             }
-            Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
+            //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
             //Debug.Log("Did not Hit");
         }
         isClicking = false;
@@ -151,6 +162,10 @@ public class MonsterController : MonoBehaviour
                 velY = 0;
             }
         }else{
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                gravity = -9.81f;
+            }
             velY += gravity * Time.deltaTime;
         }
 
