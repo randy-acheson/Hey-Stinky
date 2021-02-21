@@ -11,9 +11,25 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3506661138902710404, guid: d5ebfd406604ec04593350468406a250, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3506661139315198354, guid: d5ebfd406604ec04593350468406a250, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3506661139351108371, guid: d5ebfd406604ec04593350468406a250, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 3506661140012841385, guid: d5ebfd406604ec04593350468406a250, type: 3}
       propertyPath: m_Name
       value: playerPrefabRemote
+      objectReference: {fileID: 0}
+    - target: {fileID: 3506661140012841385, guid: d5ebfd406604ec04593350468406a250, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 3506661140012841391, guid: d5ebfd406604ec04593350468406a250, type: 3}
       propertyPath: m_LocalPosition.x
@@ -58,6 +74,18 @@ PrefabInstance:
     - target: {fileID: 3506661140012841391, guid: d5ebfd406604ec04593350468406a250, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3506661140203787488, guid: d5ebfd406604ec04593350468406a250, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3506661140253403092, guid: d5ebfd406604ec04593350468406a250, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3506661140648017175, guid: d5ebfd406604ec04593350468406a250, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 7999431003713245075, guid: d5ebfd406604ec04593350468406a250, type: 3}
       propertyPath: mouseSensitivity
