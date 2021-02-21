@@ -129,6 +129,10 @@ public class MonsterController : MonoBehaviour, CreatureBase
         }
     }
 
+    public GameObject getGameObject() {
+        return gameObject;
+    }
+
     void Update()
     {
         if (Input.GetKey(KeyCode.Escape))

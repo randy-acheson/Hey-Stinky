@@ -13,4 +13,5 @@ using System.Collections.Generic;
 public interface CreatureBase {
     String get_player_hash();
     Dictionary<String, String> getPositionDict();
+    GameObject getGameObject();
 }
