@@ -4,7 +4,6 @@ using System.Reflection;
 using UnityEngine;
 
 public class DictCommandEvaluator {
-    PlayerController parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
     ClientConnection client_connection_script = GameObject.FindObjectOfType<ClientConnection>();
 
     public void eval(string command) {
@@ -24,8 +23,8 @@ public class DictCommandEvaluator {
     //     isLightOn;
     public void toggleFlashlight(Dictionary<string, string> args) {
         try {
-            if (args["playerHash"] != parent_guy_script.get_player_hash()) {
-                GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
+            if (args["playerHash"] != client_connection_script.current_creature_script.get_player_hash()) {
+                GameObject player = client_connection_script.GetRemotePlayer(args["playerHash"]);
                 Transform target_hand = player.transform.Find("Head/Hand");
                 target_hand.gameObject.SetActive((bool) (args["isLightOn"]=="True"));
             }
@@ -45,8 +44,8 @@ public class DictCommandEvaluator {
     {
         try
         {
-            GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
-            if (player != parent_guy_script.gameObject)
+            GameObject player = client_connection_script.GetRemotePlayer(args["playerHash"]);
+            if (player != null && player != client_connection_script.current_creature_script.getGameObject())
             {
                 Animator target_animator = player.GetComponent<Animator>();
                 if(args.ContainsKey("action"))
@@ -62,8 +61,8 @@ public class DictCommandEvaluator {
             string hitName = args["playerHit"];
             if (hitName != "")
             {
-                GameObject playerHit = client_connection_script.GetPlayer(hitName);
-                if (playerHit == parent_guy_script)
+                GameObject playerHit = client_connection_script.GetRemotePlayer(hitName);
+                if (playerHit == client_connection_script.current_creature_script.getGameObject())
                 {
                     playerHit.GetComponent<PlayerController>().Die();
                 }
@@ -84,7 +83,7 @@ public class DictCommandEvaluator {
     {
         try
         {
-            GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
+            GameObject player = client_connection_script.GetRemotePlayer(args["playerHash"]);
 
             if (args["deselect"] == "False")
             {

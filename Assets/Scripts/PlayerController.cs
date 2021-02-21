@@ -210,6 +210,11 @@ public class PlayerController : MonoBehaviour, CreatureBase
             AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpFlashlightCommand));
         }
 
+        if(Input.GetKeyDown(KeyCode.L))
+        {
+            GameStart("Monster");
+        }
+
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 
         flashlight.intensity = Mathf.Min(0.5f*flashlightIntensity + (noise*4f*flashlightIntensity), flashlightIntensity);
@@ -264,6 +269,10 @@ public class PlayerController : MonoBehaviour, CreatureBase
         }
     }
 
+    public GameObject getGameObject() {
+        return gameObject;
+    }
+
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.CompareTag("CharacterSelect"))
@@ -277,9 +286,16 @@ public class PlayerController : MonoBehaviour, CreatureBase
     public void GameStart(string character)
     {
         this.character = character;
-        var newPos = GameObject.Find("SpawnPoint").transform.position;
-        controller.Move(newPos - gameObject.transform.position);
         Debug.Log("You are " + character);
+
+        if (character == "Monster")
+        {
+            // create and send seed
+        }
+
+        var newPos = GameObject.Find("PlayerSpawns")
+            .GetComponent<PlayerSpawnsController>().GetSpawn(69);
+        controller.Move(newPos - gameObject.transform.position);
     }
 
     public Dictionary<String, String> getPositionDict() {
