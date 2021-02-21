@@ -70,7 +70,7 @@ public class EricController : MonoBehaviour
     //////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    public GameObject GetPlayer(String username) {
+    public GameObject GetRemotePlayer(String username) {
         if (!player_holder.ContainsKey(username)) {
             Debug.Log("instantiating player named: " + username);
             GameObject new_guy = null;
@@ -132,7 +132,7 @@ public class EricController : MonoBehaviour
                 return;
             }
             // Debug.Log("getting palyer");
-            remotePlayer = GetPlayer(all_dict["player_hash"]);
+            remotePlayer = GetRemotePlayer(all_dict["player_hash"]);
 
             if (remotePlayer != null) {
                 remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));

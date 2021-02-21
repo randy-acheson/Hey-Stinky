@@ -23,9 +23,11 @@ public class ClientConnection : MonoBehaviour {
     UdpClient receiveClient;
     DateTime next_update = DateTime.Now;
     const int bufferSize = 1024;
-    //bool messageReceived = true;
-    GameObject parent_guy;
-    CreatureBase parent_guy_script;
+    
+    MonsterController monster_controller_script = null;
+    PlayerController player_controller_script = null;
+
+    public CreatureBase current_creature_script = null;
 
     IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
@@ -37,7 +39,6 @@ public class ClientConnection : MonoBehaviour {
 
     public Dictionary<String, Tuple<GameObject, DateTime>> player_holder = new Dictionary<String, Tuple<GameObject, DateTime>>();
 
-
     void Start() {
         Debug.Log("Started Client Code");
         AsyncTCPClient.StartClient();
@@ -47,13 +48,48 @@ public class ClientConnection : MonoBehaviour {
         IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.61"), 5006); // endpoint where server is listening
         senderClient.Connect(ep);
 
-        parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
+        tryLoadCreatureScripts();
 
         UdpState state = new UdpState();
         state.ip = RemoteIpEndPoint;
         state.client = receiveClient;
         receiveClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
-        Debug.Log("started first listen");
+        Debug.Log("started first UDP listen");
+    }
+
+    public void assignCreatureIfNull() {
+        if (current_creature_script == null) {
+            tryLoadCreatureScripts();
+
+            if (monster_controller_script != null) {
+                current_creature_script = monster_controller_script;
+            }
+            else if (player_controller_script != null) {
+                current_creature_script = player_controller_script;
+            }
+            else {
+                Debug.Log("ERROR: There are no valid creature scripts loaded, quitting the script");
+                UnityEditor.EditorApplication.isPlaying = false;
+            }
+        }
+    }
+
+    public void tryLoadCreatureScripts() {
+        try {
+            player_controller_script = GameObject.FindObjectOfType<PlayerController>();
+        }
+        catch (Exception e) {
+            Debug.Log(e);
+            Debug.Log("Could not load PlayerController script from hierarchy");
+        }
+
+        try {
+            monster_controller_script = GameObject.FindObjectOfType<MonsterController>();
+        }
+        catch (Exception e) {
+            Debug.Log(e);
+            Debug.Log("Could not load MonsterConstroller script from hierarchy");
+        }
     }
 
     public static String dictmuncher(Dictionary<String, String> dict) {
@@ -68,13 +104,17 @@ public class ClientConnection : MonoBehaviour {
         if (next_update < DateTime.Now)
         {
             // send player stuff
-            Dictionary<String, String> ok = parent_guy_script.getPositionDict();
+            Dictionary<String, String> ok = current_creature_script.getPositionDict();
             sendMessege(dictmuncher(ok));
             next_update = DateTime.Now + TimeSpan.FromSeconds(.01);
         }
     }
 
-    public GameObject GetPlayer(String username, String prefabname="default_lmao") {
+    public GameObject GetRemotePlayer(String username, String prefabname="default_lmao") {
+        if (username == current_creature_script.get_player_hash()) {
+            return null;
+        }
+
         if (!player_holder.ContainsKey(username)) {
             Debug.Log("instantiating multiplayer entity named: " + username);
             GameObject new_guy = null;
@@ -108,6 +148,8 @@ public class ClientConnection : MonoBehaviour {
     }
 
     void FixedUpdate() {
+        assignCreatureIfNull();
+
         lock (udp_lock) {
             foreach (var msg in udp_strings_to_process) {
                 process_udp_messege(msg);
@@ -202,16 +244,15 @@ public class ClientConnection : MonoBehaviour {
             GameObject remotePlayer = null;
             Dictionary<String, String> all_dict = stringmuncher(msg);
 
-            if (all_dict["player_hash"] == parent_guy_script.get_player_hash()) {
+            if (all_dict["player_hash"] == current_creature_script.get_player_hash()) {
                 return;
             }
-            // Debug.Log("getting palyer");
 
             if (all_dict.ContainsKey("prefab_name")) {
-                remotePlayer = GetPlayer(all_dict["player_hash"], all_dict["prefab_name"]);
+                remotePlayer = GetRemotePlayer(all_dict["player_hash"], all_dict["prefab_name"]);
             }
             else {
-                remotePlayer = GetPlayer(all_dict["player_hash"]);
+                remotePlayer = GetRemotePlayer(all_dict["player_hash"]);
             }
 
             if (remotePlayer != null) {
@@ -260,7 +301,6 @@ public class AsyncTCPClient {
 
     private static StateObject state = new StateObject();
 
-    private static PlayerController parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
     private static ClientConnection client_connection_script = GameObject.FindObjectOfType<ClientConnection>();
 
     public static void StartClient() {
@@ -279,12 +319,12 @@ public class AsyncTCPClient {
                 connected = connectDone.WaitOne(new TimeSpan(0, 0, 5));
                 attempt_no++;
             } else {
-                throw new Exception("Terminal Error: Could not reach server.");
                 #if UNITY_EDITOR
                     UnityEditor.EditorApplication.isPlaying = false;
                 #else
                     Application.Quit();
                 #endif
+                throw new Exception("Terminal Error: Could not reach server.");
             }
         }
 
@@ -303,15 +343,12 @@ public class AsyncTCPClient {
         stateObjectBuilt.WaitOne();
         byte[] byteData = Encoding.ASCII.GetBytes(data);  
         
-        Debug.Log("okay" + data);
-
         state.workSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None,  
             new AsyncCallback(SendCallback), state.workSocket);
     }
 
     private static void SendCallback(IAsyncResult ar) {  
         Socket s_tcp = (Socket) ar.AsyncState;  
-        Debug.Log("DONEZO");
 
         int bytesSent = s_tcp.EndSend(ar);
     }
