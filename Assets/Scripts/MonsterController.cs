@@ -6,7 +6,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MonsterController : MonoBehaviour
+public class MonsterController : MonoBehaviour, CreatureBase
 {
     public float speed = 4f;
     public float gravity = -9.81f;

@@ -24,7 +24,7 @@ public class ClientConnection : MonoBehaviour {
     const int bufferSize = 1024;
     bool messageReceived = true;
     GameObject parent_guy;
-    PlayerController parent_guy_script;
+    CreatureBase parent_guy_script;
 
     IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
@@ -47,7 +47,13 @@ public class ClientConnection : MonoBehaviour {
         senderClient.Connect(ep);
 
         parent_guy = GameObject.Find("playerPrefab");
-        parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
+
+        try {
+            parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
+        }
+        catch (Exception e) {
+            parent_guy_script = GameObject.FindObjectOfType<MonsterController>();
+        }
 
         UdpState state = new UdpState();
         state.ip = RemoteIpEndPoint;
@@ -199,7 +205,7 @@ public class ClientConnection : MonoBehaviour {
             GameObject remotePlayer = null;
             Dictionary<String, String> all_dict = stringmuncher(msg);
 
-            if (all_dict["player_hash"] == parent_guy_script.player_hash) {
+            if (all_dict["player_hash"] == parent_guy_script.get_player_hash()) {
                 return;
             }
             // Debug.Log("getting palyer");

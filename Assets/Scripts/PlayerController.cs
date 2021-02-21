@@ -13,7 +13,7 @@ using System.Net;
 using System.Threading;
 using System.ServiceModel;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, CreatureBase
 {
     public GameObject playerPrefabNoCodeReal;
     public AudioSource audioData;
@@ -282,6 +282,10 @@ public class PlayerController : MonoBehaviour
         };
 
         return dict;
+    }
+
+    public String get_player_hash() {
+        return player_hash;
     }
 
     public void hideInCloset(GameObject closet) {
