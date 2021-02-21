@@ -15,7 +15,7 @@ using System.ServiceModel;
 
 public class PlayerController : MonoBehaviour, CreatureBase
 {
-    public GameObject playerPrefabNoCodeReal;
+    public GameObject playerPrefabRemote;
     public AudioSource audioData;
 
     public float speed = 8f;

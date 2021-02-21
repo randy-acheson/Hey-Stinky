@@ -134,6 +134,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: playerPrefab
       objectReference: {fileID: 0}
+    - target: {fileID: 3506661140012841390, guid: d5ebfd406604ec04593350468406a250, type: 3}
+      propertyPath: m_Center.y
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3506661140012841390, guid: d5ebfd406604ec04593350468406a250, type: 3}
+      propertyPath: m_Height
+      value: 1.6
+      objectReference: {fileID: 0}
     - target: {fileID: 3506661140012841391, guid: d5ebfd406604ec04593350468406a250, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.82
@@ -178,6 +186,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7999431003713245075, guid: d5ebfd406604ec04593350468406a250, type: 3}
+      propertyPath: playerPrefabRemote
+      value: 
+      objectReference: {fileID: 2029459447819450971, guid: bf37bb407db9b1c40963f8a71f29f868, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d5ebfd406604ec04593350468406a250, type: 3}
 --- !u!1001 &77223116
@@ -1264,13 +1276,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 609489705}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9dc73249aa4f90d429f9b1dbcb6a81fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefabNoCodeReal: {fileID: 2029459447819450971, guid: bf37bb407db9b1c40963f8a71f29f868, type: 3}
-  crawler: {fileID: 4287358143091522399, guid: bf9245461152b7c4fa7bf2e5a2130168, type: 3}
+  crawler: {fileID: 6498772443052303450, guid: bf36e03737cfe864abb968cad6638180, type: 3}
   udp_strings_to_process: []
   tcp_strings_to_process: []
 --- !u!1001 &610906166
