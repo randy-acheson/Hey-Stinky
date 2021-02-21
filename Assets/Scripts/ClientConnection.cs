@@ -50,6 +50,8 @@ public class ClientConnection : MonoBehaviour {
         // parent_guy = GameObject.Find("playerPrefab");
 
         parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
+        // parent_guy_script = GameObject.FindObjectOfType<MonsterController>();
+
         // try {
             // parent_guy_script = GameObject.FindObjectOfType<MonsterController>();
         // }
