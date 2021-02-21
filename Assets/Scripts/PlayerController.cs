@@ -112,7 +112,8 @@ public class PlayerController : MonoBehaviour
         String key;
         key = stuff3[0].Trim();
         val = stuff3[1].Trim();
-        return new Tuple<String, String>(key, val);
+        var temp = new Tuple<String, String>(key, val);
+        return temp;
     }
 
     private void process_tcp_messege(String msg) {
