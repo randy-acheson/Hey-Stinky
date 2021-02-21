@@ -64,19 +64,18 @@ public class PlayerController : MonoBehaviour, CreatureBase
         } else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
         }
-        Debug.Log("hit: " + hit.normal.y + ", grounded: " + isGrounded + ", vel: " + velY);
     }
 
     private void FixedUpdate()
     {
-        Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
+        //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
         RaycastHit hit;
         string newUIText = "";
         // Does the ray intersect any objects excluding the player layer
         //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
         {
-            Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.yellow, 5f, false);
+            //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.yellow, 5f, false);
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
             if (obj != null)
             {
@@ -93,7 +92,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         }
         else
         {
-            Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
+            //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
             //Debug.Log("Did not Hit");
         }
         isClicking = false;
