@@ -1644,7 +1644,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefabNoCodeReal: {fileID: 2029459447819450971, guid: bf37bb407db9b1c40963f8a71f29f868, type: 3}
+  playerWithCode: {fileID: 3506661140012841385, guid: d5ebfd406604ec04593350468406a250, type: 3}
   crawler: {fileID: 6498772443052303450, guid: bf36e03737cfe864abb968cad6638180, type: 3}
+  crawlerWithCode: {fileID: 4287358143091522399, guid: a567c6ad5af384b429b8456fec59c008, type: 3}
   udp_strings_to_process: []
   tcp_strings_to_process: []
 --- !u!1001 &610906166

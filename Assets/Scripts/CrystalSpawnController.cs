@@ -19,8 +19,9 @@ public class CrystalSpawnController : MonoBehaviour
         {
             allSpawns.Add(child.gameObject);
         }
-
-        SpawnCrystals();
+    
+        ClientConnection client_connection_script = GameObject.FindObjectOfType<ClientConnection>();
+        SpawnCrystals(client_connection_script.rSeed);
     }
 
     // Update is called once per frame
@@ -29,9 +30,9 @@ public class CrystalSpawnController : MonoBehaviour
         
     }
 
-    public void SpawnCrystals()
+    public void SpawnCrystals(Int32 seed)
     {
-        var r = new System.Random();
+        var r = new System.Random(seed);
         var randomValues = Enumerable.Range(0, allSpawns.Count)
             .OrderBy(x => r.Next()).Take(numCrystals).ToList();
 
