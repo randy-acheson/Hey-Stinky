@@ -15,7 +15,7 @@ using System.ServiceModel;
 
 public class PlayerController : MonoBehaviour, CreatureBase
 {
-    public GameObject playerPrefabNoCodeReal;
+    public GameObject playerPrefabRemote;
     public AudioSource audioData;
 
     public float speed = 8f;
@@ -58,11 +58,13 @@ public class PlayerController : MonoBehaviour, CreatureBase
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.normal.y > 0.01) {
+        if (hit.normal.y > 0.1) {
             isGrounded = true;
+            velY = 0;
         } else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
         }
+        Debug.Log("hit: " + hit.normal.y + ", grounded: " + isGrounded + ", vel: " + velY);
     }
 
     private void FixedUpdate()
@@ -139,6 +141,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         }else{
             velY += gravity * Time.deltaTime;
         }
+        Debug.Log("grounded: " + isGrounded + ", vel: " + velY);
 
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         float posZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
