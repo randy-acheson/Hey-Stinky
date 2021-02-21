@@ -267,14 +267,20 @@ public class PlayerController : MonoBehaviour, CreatureBase
                 .GetComponent<CharacterSelectionController>()
                 .GetCharacter(other.gameObject);
 
-            Dictionary<string, string> tcpCharacterSelectCmd = new Dictionary<string, string>
-            {
-                ["function"] = "selectCharacter",
-                ["playerHash"] = player_hash,
-                ["character"] = character
-            };
-            AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpCharacterSelectCmd));
+            CharacterSelectTCP(character, false);
         }
+    }
+
+    private void CharacterSelectTCP(string character, bool deselect)
+    {
+        Dictionary<string, string> tcpCharacterSelectCmd = new Dictionary<string, string>
+        {
+            ["function"] = "selectCharacter",
+            ["playerHash"] = player_hash,
+            ["deselect"] = deselect.ToString(),
+            ["character"] = character
+        };
+        AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpCharacterSelectCmd));
     }
 
     private void OnTriggerExit(Collider other)
@@ -284,6 +290,8 @@ public class PlayerController : MonoBehaviour, CreatureBase
             character = GameObject.Find("CharacterSelectors")
                 .GetComponent<CharacterSelectionController>()
                 .CharacterDeselected(other.gameObject);
+
+            CharacterSelectTCP(character, true);
         }
     }
 

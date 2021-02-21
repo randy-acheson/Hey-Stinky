@@ -45,10 +45,19 @@ public class DictCommandEvaluator {
             {
                 parent_guy_script.character = args["character"];
             }
+            if (args["deselect"] == "True")
+            {
+                GameObject.Find("CharacterSelectors")
+                    .GetComponent<CharacterSelectionController>()
+                    .CharacterSelected(args["character"]);            
+            }
+            else
+            {
+                GameObject.Find("CharacterSelectors")
+                    .GetComponent<CharacterSelectionController>()
+                    .CharacterDeselected(args["character"]);
+            }
             
-            GameObject.Find("CharacterSelectors")
-                .GetComponent<CharacterSelectionController>()
-                .CharacterSelected(args["character"]);            
         }
         catch (Exception e)
         {

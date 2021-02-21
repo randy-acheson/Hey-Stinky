@@ -22,15 +22,17 @@ public class CharacterSelectionController : MonoBehaviour
     public void CharacterSelected(string character)
     {
         numCharactersSelected++;
+        Debug.Log("Select: " + numCharactersSelected);
         if (numCharactersSelected == NumCharacters)
         {
             GameObject.Find("playerPrefab").GetComponent<PlayerController>().GameStart();
         }
     }
 
-    public string CharacterDeselected(GameObject obj)
+    public string CharacterDeselected(string character)
     {
         numCharactersSelected--;
+        Debug.Log("Deselect: " + numCharactersSelected);
         return null;
     }
 
