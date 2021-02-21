@@ -12,6 +12,8 @@ using System.Net;
 using System.Threading;
 using System.ServiceModel;
 
+using CommandEvaluator.CommandEvaluators;
+
 public class PlayerController : MonoBehaviour
 {
     public GameObject playerPrefabNoCodeReal;
@@ -20,7 +22,7 @@ public class PlayerController : MonoBehaviour
     public float speed = 8f;
     public float gravity = -9.81f;
     public float bounce = 0.04f;
-    public float mouseSensitivity = 0.1f;
+    public float mouseSensitivity = 300f;
     
     private Transform body;
     private Transform camera;
@@ -327,7 +329,7 @@ public class PlayerController : MonoBehaviour
             }else{
                 sendPacket[5] = 0f;
             }
-            hand.gameObject.SetActive(!hand.gameObject.activeSelf);
+            hand.gameObject.SetAct`ive(!hand.gameObject.activeSelf);
         }
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);

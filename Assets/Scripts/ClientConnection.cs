@@ -170,7 +170,12 @@ public class AsyncTCPClient {
         int bytesRead = s_tcp.EndReceive(ar);
 
         if (bytesRead > 0) {
-            Debug.Log($"Received From Server: {Encoding.ASCII.GetString(state.buffer,0,bytesRead).ToString()}");
+            string incoming_data = Encoding.ASCII.GetString(state.buffer,0,bytesRead).ToString();
+            
+            Debug.Log($"Received From Server: {incoming_data}");
+            lock (parent_guy_script.tcp_lock) {
+                parent_guy_script.tcp_strings_to_process.Add(receiveString);
+            }
 
             s_tcp.BeginReceive(state.buffer,0,StateObject.BufferSize,0,
                 new AsyncCallback(ReceiveCallback), state);
