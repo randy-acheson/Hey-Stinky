@@ -57,12 +57,16 @@ public class DictCommandEvaluator {
                     target_animator.SetInteger("movementState", int.Parse(args["movementState"]));
                 }
             }
+            else
+            {
+                Debug.Log("action");
+            }
 
             string hitName = args["playerHit"];
             if (hitName != "")
             {
                 GameObject playerHit = client_connection_script.GetRemotePlayer(hitName);
-                if (playerHit == client_connection_script.current_creature_script.getGameObject())
+                if (playerHit == null)
                 {
                     playerHit.GetComponent<PlayerController>().Die();
                 }
