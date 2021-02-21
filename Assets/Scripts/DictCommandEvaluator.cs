@@ -4,7 +4,6 @@ using System.Reflection;
 using UnityEngine;
 
 public class DictCommandEvaluator {
-    PlayerController parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
     ClientConnection client_connection_script = GameObject.FindObjectOfType<ClientConnection>();
 
     public void eval(string command) {
@@ -25,7 +24,7 @@ public class DictCommandEvaluator {
     public void toggleFlashlight(Dictionary<string, string> args) {
         try {
             GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
-            if (player != parent_guy_script.gameObject) {
+            if (player != client_connection_script.current_creature_script.getGameObject()) {
                 Transform target_hand = player.transform.Find("Head/Hand");
                 target_hand.gameObject.SetActive((bool) (args["isLightOn"]=="True"));
             }
@@ -40,7 +39,7 @@ public class DictCommandEvaluator {
         try
         {
             GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
-            if (player != parent_guy_script.gameObject)
+            if (player != client_connection_script.current_creature_script.getGameObject())
             {
                 Animator target_animator = player.GetComponent<Animator>();
                 if(args.ContainsKey("action"))
@@ -57,7 +56,7 @@ public class DictCommandEvaluator {
             if (hitName != "")
             {
                 GameObject playerHit = client_connection_script.GetPlayer(hitName);
-                if (playerHit == parent_guy_script)
+                if (playerHit == client_connection_script.current_creature_script.getGameObject())
                 {
                     playerHit.GetComponent<PlayerController>().Die();
                 }

@@ -273,6 +273,10 @@ public class PlayerController : MonoBehaviour, CreatureBase
         }
     }
 
+    public GameObject getGameObject() {
+        return gameObject;
+    }
+
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.CompareTag("CharacterSelect"))
