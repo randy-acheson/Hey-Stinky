@@ -22,7 +22,7 @@ public class AudioController : MonoBehaviour
 
             clipIndex = Random.Range(0, clips.Length - 1);
             audio.clip = clips[clipIndex];
-            audio.PlayDelayed(Random.Range(5f, 10f));
+            audio.PlayDelayed(Random.Range(10f, 20f));
             Debug.Log("Nothing playing, we set new audio to " + audio.clip.name);
         }
     }
