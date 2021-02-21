@@ -496,6 +496,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: marlborough-collision
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9c9ae72754537a44fb0acdd7ea86b285, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9c9ae72754537a44fb0acdd7ea86b285, type: 3}
+      propertyPath: m_TagString
+      value: House
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9c9ae72754537a44fb0acdd7ea86b285, type: 3}
 --- !u!4 &242632139 stripped
@@ -709,6 +717,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefabNoCodeReal: {fileID: 0}
+  audioData: {fileID: 0}
   speed: 8
   gravity: -9.81
   bounce: 0.04
@@ -899,7 +908,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: 1d2c71babf018154e88833a6af64adc2, type: 2}
     - target: {fileID: 4287358143082023221, guid: a567c6ad5af384b429b8456fec59c008, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4287358143091489867, guid: a567c6ad5af384b429b8456fec59c008, type: 3}
       propertyPath: m_Radius
@@ -959,6 +968,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4287358143091877567, guid: a567c6ad5af384b429b8456fec59c008, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4975057990588356272, guid: a567c6ad5af384b429b8456fec59c008, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1220,6 +1233,24 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: c68a5884025dc0c4c85d45128eaa81c1, type: 3}
   m_PrefabInstance: {fileID: 610906166}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &645487715 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4287358143091522399, guid: a567c6ad5af384b429b8456fec59c008, type: 3}
+  m_PrefabInstance: {fileID: 555388438}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &645487716
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 645487715}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 0
+  serializedVersion: 2
+  m_Size: {x: 8.812056, y: 1.6197515, z: 1.3553506}
+  m_Center: {x: 2.047515, y: -1.3097042, z: -0.17767519}
 --- !u!1001 &761732211
 PrefabInstance:
   m_ObjectHideFlags: 0

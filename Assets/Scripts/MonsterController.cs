@@ -33,6 +33,10 @@ public class MonsterController : MonoBehaviour
 
     private Text uiText;
     private bool isClicking = false;
+    private bool wallClicked = false;
+    private bool wallLeft = false;
+    private Vector3 wallNormal;
+    private Vector3 hitVector;
 
     private string player_hash;
 
@@ -57,40 +61,58 @@ public class MonsterController : MonoBehaviour
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         //Debug.Log("hit: " + hit.normal);
-        if(hit.normal.y > 0.5){
+        if(!isWalled && hit.normal.y > 0.9){
+            Debug.Log("hitting wrong thing");
+            /*Vector3 newForward = transform.position;
+            newForward.y = 0;
+            if (newForward.x == 0 && newForward.z == 0)
+            {
+                newForward = Vector3.forward;
+            }
+            transform.rotation = Quaternion.LookRotation(newForward.normalized, Vector3.up);*/
             isGrounded = true;
             isWalled = false;
             gravity = -9.81f;
         }
-        else if (!isGrounded && (Mathf.Abs(hit.normal.x) > 0.5 || Mathf.Abs(hit.normal.z) > 0.5)) {
-            isWalled = true;
+        //else if (!isGrounded && (Mathf.Abs(hit.normal.x) > 0.5 || Mathf.Abs(hit.normal.z) > 0.5)) {
+            //isWalled = true;
 
-            Vector3 target = transform.forward - Vector3.Dot(transform.forward, hit.normal) * hit.normal;
+            //Vector3 target = transform.forward - Vector3.Dot(transform.forward, hit.normal) * hit.normal;
             //if (target.y < 0)
             //{
             //    target.y = 0.1f;
             //}
             //target = target + transform.position;
             //transform.LookAt(target, Vector3.up);
-            transform.rotation = Quaternion.LookRotation(target.normalized, hit.normal);
+            //transform.rotation = Quaternion.LookRotation(target.normalized, hit.normal);
             //transform.rotation = Quaternion.FromToRotation(transform.up, hit.normal);
             //transform.rotation.eulerAngles.Set(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, -90f);
-            gravity = 0;
+            //gravity = 0;
             //Debug.Log("wall: " + target);
-        }
+        //}
         else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
         }
     }
 
+    /*private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("House"))
+        {
+            Debug.Log("leaving wall trigger");
+            wallLeft = false;
+        }
+    }*/
+
     private void FixedUpdate()
     {
+        string newUIText = "";
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
         //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
-        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
+        if (Physics.Raycast(camera.transform.position, camera.transform.up, out hit, Mathf.Infinity))
         {
-            //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.yellow, 5f, false);
+            Debug.DrawRay(camera.transform.position, camera.transform.up, Color.yellow, 1f, false);
             //Debug.Log(hit.collider.gameObject.GetComponent<CrystalController>());
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
 //            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
@@ -99,29 +121,39 @@ public class MonsterController : MonoBehaviour
                 Debug.Log("hit "+hit.transform.name);
                 if (isClicking)
                 {
-                    uiText.text = "";
                     obj.OnPlayerInteract(gameObject, 0);
                 }
                 else
                 {
-                    uiText.text = obj.getHoverMessage();
+                    newUIText = obj.getHoverMessage();
                 }
             }
-            else if (uiText != null)
+            else if (hit.transform.CompareTag("House") && isClicking && hit.distance < 2)
             {
-                uiText.text = "";
+                Debug.Log("Walling");
+                wallClicked = true;
+                wallNormal = hit.normal;
+                hitVector = hit.point;
             }
         }
-        else
-        {
-            if (uiText != null)
-            {
-                uiText.text = "";
-            }
-            //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
-            //Debug.Log("Did not Hit");
-        }
+        
         isClicking = false;
+        if (uiText != null)
+        {
+            uiText.text = newUIText;
+        }
+
+        RaycastHit hit2;
+        int layerMask = 1 << 8;
+        layerMask = ~layerMask;
+        if (isWalled)
+        {
+            Debug.DrawRay(transform.position, -1f * transform.up, Color.blue, 0.5f);
+            if (!Physics.Raycast(transform.position, -1f * transform.up, out hit2, 0.5f))
+            {
+                wallLeft = true;
+            }
+        }
     }
 
     void Update()
@@ -134,6 +166,12 @@ public class MonsterController : MonoBehaviour
         if(!Physics.CheckSphere(transform.position, 0.1f)){
             isGrounded = false;
         }
+
+        /*if (isWalled && !Physics.CheckBox(transform.position, 2f*transform.up))
+        {
+            Debug.Log("Leaving wall");
+            wallLeft = true;
+        }*/
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -162,11 +200,38 @@ public class MonsterController : MonoBehaviour
                 velY = 0;
             }
         }else{
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) || wallLeft)
             {
+                Debug.Log("jumping off wall");
                 gravity = -9.81f;
+                isWalled = false;
+                Vector3 newForward = transform.position;
+                newForward.y = 0;
+                if (newForward.x == 0 && newForward.z == 0)
+                {
+                    newForward = Vector3.forward;
+                }
+                transform.rotation = Quaternion.LookRotation(newForward.normalized, Vector3.up);
+                wallLeft = false;
             }
             velY += gravity * Time.deltaTime;
+        }
+
+        if (wallClicked)
+        {
+            isWalled = true;
+            isGrounded = false;
+
+            Vector3 target = transform.forward - Vector3.Dot(transform.forward, wallNormal) * wallNormal;
+            //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
+            //Debug.Log("Did not Hit");
+            transform.rotation = Quaternion.LookRotation(target.normalized, wallNormal);
+            transform.position = hitVector + .5f * wallNormal;
+            //transform.rotation = Quaternion.FromToRotation(transform.up, hit.normal);
+            //transform.rotation.eulerAngles.Set(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, -90f);
+            gravity = 0;
+
+            wallClicked = false;
         }
 
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
@@ -217,7 +282,8 @@ public class MonsterController : MonoBehaviour
         //body.transform.localRotation = Quaternion.Euler(0f, 0f, horiBob*-0.0244f);
         //camera.localPosition = new Vector3(horiBob*bounce*0.5f, 1.68f+vertBob*bounce, 0f);
 
-        controller.Move(transform.forward*posX - transform.right*posZ + Vector3.up*posY);
+        //controller.Move(transform.forward*posX - transform.right*posZ + Vector3.up*posY);
+        controller.Move(transform.forward * posX - transform.right * posZ + transform.up * posY);
 
         sendPacket[0] = transform.position.x;
         sendPacket[1] = transform.position.y;
