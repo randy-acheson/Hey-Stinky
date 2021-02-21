@@ -46,6 +46,12 @@ public class ClientConnection : MonoBehaviour {
         Debug.Log(parent_guy_script);
         parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
         Debug.Log(parent_guy_script);
+
+        UdpState state = new UdpState();
+        state.ip = RemoteIpEndPoint;
+        state.client = receiveClient;
+        receiveClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
+        Debug.Log("started first listen");
     }
 
     void Update() {
