@@ -319,7 +319,7 @@ public class ClientConnection : MonoBehaviour {
 }
 
 public class AsyncTCPClient {
-    private const string SERVER_ADDR = "192.168.86.46";
+    private const string SERVER_ADDR = "192.168.86.61";
     private const int PORT = 7777;
 
     private static ManualResetEvent connectDone = 
