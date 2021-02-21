@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -63,46 +64,15 @@ public class MonsterController : MonoBehaviour, CreatureBase
         //Debug.Log("hit: " + hit.normal);
         if(!isWalled && hit.normal.y > 0.9){
             Debug.Log("hitting wrong thing");
-            /*Vector3 newForward = transform.position;
-            newForward.y = 0;
-            if (newForward.x == 0 && newForward.z == 0)
-            {
-                newForward = Vector3.forward;
-            }
-            transform.rotation = Quaternion.LookRotation(newForward.normalized, Vector3.up);*/
+
             isGrounded = true;
             isWalled = false;
             gravity = -9.81f;
         }
-        //else if (!isGrounded && (Mathf.Abs(hit.normal.x) > 0.5 || Mathf.Abs(hit.normal.z) > 0.5)) {
-            //isWalled = true;
-
-            //Vector3 target = transform.forward - Vector3.Dot(transform.forward, hit.normal) * hit.normal;
-            //if (target.y < 0)
-            //{
-            //    target.y = 0.1f;
-            //}
-            //target = target + transform.position;
-            //transform.LookAt(target, Vector3.up);
-            //transform.rotation = Quaternion.LookRotation(target.normalized, hit.normal);
-            //transform.rotation = Quaternion.FromToRotation(transform.up, hit.normal);
-            //transform.rotation.eulerAngles.Set(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, -90f);
-            //gravity = 0;
-            //Debug.Log("wall: " + target);
-        //}
         else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
         }
     }
-
-    /*private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("House"))
-        {
-            Debug.Log("leaving wall trigger");
-            wallLeft = false;
-        }
-    }*/
 
     private void FixedUpdate()
     {
@@ -167,12 +137,6 @@ public class MonsterController : MonoBehaviour, CreatureBase
             isGrounded = false;
         }
 
-        /*if (isWalled && !Physics.CheckBox(transform.position, 2f*transform.up))
-        {
-            Debug.Log("Leaving wall");
-            wallLeft = true;
-        }*/
-
         if (Input.GetMouseButtonDown(0))
         {
             isClicking = true;
@@ -223,12 +187,9 @@ public class MonsterController : MonoBehaviour, CreatureBase
             isGrounded = false;
 
             Vector3 target = transform.forward - Vector3.Dot(transform.forward, wallNormal) * wallNormal;
-            //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
-            //Debug.Log("Did not Hit");
             transform.rotation = Quaternion.LookRotation(target.normalized, wallNormal);
             transform.position = hitVector + .5f * wallNormal;
-            //transform.rotation = Quaternion.FromToRotation(transform.up, hit.normal);
-            //transform.rotation.eulerAngles.Set(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, -90f);
+
             gravity = 0;
 
             wallClicked = false;
@@ -279,10 +240,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
         float posY = velY * Time.deltaTime;
 
         body.localPosition = new Vector3(horiBob*bounce*0.5f, 0.9f+vertBob*bounce, 0f);
-        //body.transform.localRotation = Quaternion.Euler(0f, 0f, horiBob*-0.0244f);
-        //camera.localPosition = new Vector3(horiBob*bounce*0.5f, 1.68f+vertBob*bounce, 0f);
-
-        //controller.Move(transform.forward*posX - transform.right*posZ + Vector3.up*posY);
+        
         controller.Move(transform.forward * posX - transform.right * posZ + transform.up * posY);
 
         sendPacket[0] = transform.position.x;
@@ -380,11 +338,28 @@ public class MonsterController : MonoBehaviour, CreatureBase
         }
     }
 
-    public string getPositionDict() {
+    public Dictionary<String, String> getPositionDict()
+    {
         Vector3 player_xyz_pos = gameObject.transform.position;
         Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
-        float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
-        return $"{{'body_posX:' '{player_xyz_pos.x}', 'body_posY:' '{player_xyz_pos.y}', 'body_posZ:' '{player_xyz_pos.z}', 'head_rotX:' '{head_x_rot}', 'body_rotY:' '{player_xyz_rot.y}', 'body_rotZ:' '{player_xyz_rot.z}'}}";
+        float head_x_rot = camera.eulerAngles.x;
+
+        // var prefabGameObject = PrefabUtility.GetCorrespondingObjectFromSource(GameObject.Find("playerPrefab"));
+        // Debug.Log(prefabGameObject);
+
+        Dictionary<String, String> dict = new Dictionary<String, String> {
+            {"player_hash", player_hash},
+            {"body_posX", player_xyz_pos.x.ToString()},
+            {"body_posY", player_xyz_pos.y.ToString()},
+            {"body_posZ", player_xyz_pos.z.ToString()},
+            {"head_rotX", head_x_rot.ToString()},
+            {"body_rotX", player_xyz_rot.x.ToString()},
+            {"body_rotY", player_xyz_rot.y.ToString()},
+            {"body_rotZ", player_xyz_rot.z.ToString()},
+            {"prefab_name", "crawler"},
+        };
+
+        return dict;
     }
 
     public void hideInCloset(GameObject closet)
