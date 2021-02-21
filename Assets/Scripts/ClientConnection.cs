@@ -110,7 +110,11 @@ public class ClientConnection : MonoBehaviour {
         }
     }
 
-    public GameObject GetPlayer(String username, String prefabname="default_lmao") {
+    public GameObject GetRemotePlayer(String username, String prefabname="default_lmao") {
+        if (username == current_creature_script.get_player_hash()) {
+            return null;
+        }
+
         if (!player_holder.ContainsKey(username)) {
             Debug.Log("instantiating multiplayer entity named: " + username);
             GameObject new_guy = null;
@@ -245,10 +249,10 @@ public class ClientConnection : MonoBehaviour {
             }
 
             if (all_dict.ContainsKey("prefab_name")) {
-                remotePlayer = GetPlayer(all_dict["player_hash"], all_dict["prefab_name"]);
+                remotePlayer = GetRemotePlayer(all_dict["player_hash"], all_dict["prefab_name"]);
             }
             else {
-                remotePlayer = GetPlayer(all_dict["player_hash"]);
+                remotePlayer = GetRemotePlayer(all_dict["player_hash"]);
             }
 
             if (remotePlayer != null) {
