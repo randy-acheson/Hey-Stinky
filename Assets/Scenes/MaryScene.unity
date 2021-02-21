@@ -919,6 +919,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 609489706}
+  - component: {fileID: 609489707}
   m_Layer: 0
   m_Name: House
   m_TagString: Untagged
@@ -969,6 +970,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &609489707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 609489705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dc73249aa4f90d429f9b1dbcb6a81fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerPrefabNoCodeReal: {fileID: 2029459447819450971, guid: bf37bb407db9b1c40963f8a71f29f868, type: 3}
+  crawler: {fileID: 4287358143091522399, guid: a567c6ad5af384b429b8456fec59c008, type: 3}
+  udp_strings_to_process: []
+  tcp_strings_to_process: []
 --- !u!1001 &610906166
 PrefabInstance:
   m_ObjectHideFlags: 0
