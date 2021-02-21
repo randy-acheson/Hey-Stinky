@@ -12,10 +12,10 @@ public class CharacterSelectionController : MonoBehaviour
     {
         characterDict = new Dictionary<string, string>
         {
-            ["monster"] = null,
-            ["red"] = null,
-            ["green"] = null,
-            ["blue"] = null,
+            ["Monster"] = null,
+            ["Red"] = null,
+            ["Green"] = null,
+            ["Blue"] = null,
         };
     }
 
@@ -32,10 +32,10 @@ public class CharacterSelectionController : MonoBehaviour
             ["function"] = "selectCharacter",
             ["playerHash"] = playerHash,
             ["deselect"] = deselect.ToString(),
-            ["monster"] = characterDict["monster"],
-            ["red"] = characterDict["red"],
-            ["green"] = characterDict["green"],
-            ["blue"] = characterDict["blue"]
+            ["Monster"] = characterDict["Monster"],
+            ["Red"] = characterDict["Red"],
+            ["Green"] = characterDict["Green"],
+            ["Blue"] = characterDict["Blue"]
         };
 
         AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpCharacterSelectCmd));
@@ -57,21 +57,21 @@ public class CharacterSelectionController : MonoBehaviour
 
     public void CharacterSelectedResponse(Dictionary<string, string> charDict)
     {
-        characterDict["monster"] = charDict["monster"];
-        characterDict["red"] = charDict["red"];
-        characterDict["green"] = charDict["green"];
-        characterDict["blue"] = charDict["blue"];
+        characterDict["Monster"] = charDict["Monster"];
+        characterDict["Red"] = charDict["Red"];
+        characterDict["Green"] = charDict["Green"];
+        characterDict["Blue"] = charDict["Blue"];
 
-        Debug.Log("Select: Monster=" + characterDict["monster"]
-            + " Red=" + characterDict["red"]
-            + " Green=" + characterDict["green"]
-            + " Blue=" + characterDict["blue"]);
+        Debug.Log("Select: Monster=" + characterDict["Monster"]
+            + " Red=" + characterDict["Red"]
+            + " Green=" + characterDict["Green"]
+            + " Blue=" + characterDict["Blue"]);
 
         // If every character is taken, start the game
-        if (!string.IsNullOrEmpty(characterDict["monster"]) 
-            && !string.IsNullOrEmpty(characterDict["red"]) 
-            && !string.IsNullOrEmpty(characterDict["green"]) 
-            && !string.IsNullOrEmpty(characterDict["blue"]))
+        if (!string.IsNullOrEmpty(characterDict["Monster"]) 
+            && !string.IsNullOrEmpty(characterDict["Red"]) 
+            && !string.IsNullOrEmpty(characterDict["Green"]) 
+            && !string.IsNullOrEmpty(characterDict["Blue"]))
         {
             var myHash = GameObject.Find("playerPrefab")
                 .GetComponent<PlayerController>().get_player_hash();
@@ -83,15 +83,15 @@ public class CharacterSelectionController : MonoBehaviour
 
     public void CharacterDeselectedResponse(Dictionary<string, string> charDict)
     {
-        characterDict["monster"] = charDict["monster"];
-        characterDict["red"] = charDict["red"];
-        characterDict["green"] = charDict["green"];
-        characterDict["blue"] = charDict["blue"];
+        characterDict["Monster"] = charDict["Monster"];
+        characterDict["Red"] = charDict["Red"];
+        characterDict["Green"] = charDict["Green"];
+        characterDict["Blue"] = charDict["Blue"];
 
-        Debug.Log("Select: Monster=" + characterDict["monster"]
-            + " Red=" + characterDict["red"]
-            + " Green=" + characterDict["green"]
-            + " Blue=" + characterDict["blue"]);
+        Debug.Log("Deselect: Monster=" + characterDict["Monster"]
+            + " Red=" + characterDict["Red"]
+            + " Green=" + characterDict["Green"]
+            + " Blue=" + characterDict["Blue"]);
     }
 
     public string GetCharacterFromPlayerHash(string playerHash)

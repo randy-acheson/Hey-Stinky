@@ -141,7 +141,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         }else{
             velY += gravity * Time.deltaTime;
         }
-        Debug.Log("grounded: " + isGrounded + ", vel: " + velY);
+        //Debug.Log("grounded: " + isGrounded + ", vel: " + velY);
 
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         float posZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
