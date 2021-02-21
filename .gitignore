@@ -98,3 +98,6 @@ $RECYCLE.BIN/
 
 #Yucky Files
 *.exe
+
+#Debugging
+debug.txt
