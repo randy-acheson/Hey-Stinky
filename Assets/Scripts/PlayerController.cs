@@ -44,6 +44,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
     private bool isClicking = false;
 
     public String player_hash;
+    public Int32 rSeed;
     
     void Start()
     {
@@ -250,17 +251,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Crystal") && crystal == null)
-        {
-            if (!other.gameObject.GetComponent<CrystalController>().isDeposited)
-            {
-                crystal = other.gameObject;
-                crystal.GetComponent<CrystalController>()
-                    .SetTransformParent(gameObject.transform);
-                crystal.transform.localPosition = new Vector3(0,0.5f,0.5f);
-            }
-        }
-        else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
+        if (other.gameObject.CompareTag("Receptacle") && crystal != null)
         {
             other.gameObject.GetComponent<ReceptacleScript>().AddCrystal(crystal);
             crystal = null;
