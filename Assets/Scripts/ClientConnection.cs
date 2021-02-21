@@ -413,4 +413,8 @@ public class AsyncTCPClient {
         state.workSocket.Shutdown(SocketShutdown.Both);
         state.workSocket.Close();
     }
+
+    ~AsyncTCPClient() {
+        Close();
+    }
 }
