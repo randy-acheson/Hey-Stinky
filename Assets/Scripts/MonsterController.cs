@@ -338,14 +338,15 @@ public class MonsterController : MonoBehaviour, CreatureBase
         }
     }
 
+    public String get_player_hash() {
+        return player_hash;
+    }
+
     public Dictionary<String, String> getPositionDict()
     {
         Vector3 player_xyz_pos = gameObject.transform.position;
         Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
         float head_x_rot = camera.eulerAngles.x;
-
-        // var prefabGameObject = PrefabUtility.GetCorrespondingObjectFromSource(GameObject.Find("playerPrefab"));
-        // Debug.Log(prefabGameObject);
 
         Dictionary<String, String> dict = new Dictionary<String, String> {
             {"player_hash", player_hash},

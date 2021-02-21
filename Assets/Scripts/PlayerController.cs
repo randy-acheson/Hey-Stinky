@@ -267,9 +267,6 @@ public class PlayerController : MonoBehaviour, CreatureBase
         Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
         float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
 
-        // var prefabGameObject = PrefabUtility.GetCorrespondingObjectFromSource(GameObject.Find("playerPrefab"));
-        // Debug.Log(prefabGameObject);
-
         Dictionary<String, String> dict = new Dictionary<String, String> {
             {"player_hash", player_hash},
             {"body_posX", player_xyz_pos.x.ToString()},

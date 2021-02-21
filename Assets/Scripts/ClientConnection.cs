@@ -18,6 +18,7 @@ public class UdpState {
 public class ClientConnection : MonoBehaviour {
 
     public GameObject playerPrefabNoCodeReal;
+    public GameObject crawler;
     UdpClient senderClient;
     UdpClient receiveClient;
     DateTime next_update = DateTime.Now;
@@ -87,6 +88,9 @@ public class ClientConnection : MonoBehaviour {
             try {
                 if (prefabname == "playerPrefab") {
                     new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
+                }
+                else if (prefabname == "crawler") {
+                    new_guy = Instantiate(crawler, new Vector3(0, 0, 0), Quaternion.identity);
                 }
                 else {
                     Debug.Log("WARNING COULD NOT FIND THE PLAYERPREFAB: " + prefabname);
