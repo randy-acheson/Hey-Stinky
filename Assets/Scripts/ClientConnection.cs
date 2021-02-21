@@ -263,7 +263,7 @@ public class AsyncTCPClient {
 
     public class StateObject {  
         public Socket workSocket = null;  
-        public const int BufferSize = 256;  
+        public const int BufferSize = 4096;  
         public byte[] buffer = new byte[BufferSize];  
         public StringBuilder sb = new StringBuilder();  
     }
@@ -278,7 +278,25 @@ public class AsyncTCPClient {
         IPEndPoint serverEP = new IPEndPoint(IPAddress.Parse(SERVER_ADDR), PORT);
 
         s_tcp.BeginConnect(serverEP, new AsyncCallback(ConnectCallback), s_tcp);
-        connectDone.WaitOne();
+        
+        bool connected = false;
+        int attempt_no = 1;
+        int attempt_limit = 4;
+        while (!connected)
+        {
+            if (attempt_no < attempt_limit) {
+                Debug.Log($"Attempting to reach server... {attempt_no} of {attempt_limit}");
+                connected = connectDone.WaitOne(new TimeSpan(0, 0, 5));
+                attempt_no++;
+            } else {
+                throw new Exception("Terminal Error: Could not reach server.");
+                #if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying = false;
+                #else
+                    Application.Quit();
+                #endif
+            }
+        }
 
         state.workSocket = s_tcp;
         stateObjectBuilt.Set();

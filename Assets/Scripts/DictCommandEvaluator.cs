@@ -80,10 +80,6 @@ public class DictCommandEvaluator {
         {
             GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
 
-            if (player == parent_guy_script.gameObject)
-            {
-                parent_guy_script.character = args["character"];
-            }
             if (args["deselect"] == "False")
             {
                 GameObject.Find("CharacterSelectors")
