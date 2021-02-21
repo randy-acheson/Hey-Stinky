@@ -44,7 +44,7 @@ public class PlayerController : MonoBehaviour
     public object __lockObj = new object();
     public List<String> to_add = new List<String>();
 
-    public Dictionary<String, GameObject> player_holder = new Dictionary<String, GameObject>();
+    public Dictionary<String, Tuple<GameObject, DateTime>> player_holder = new Dictionary<String, Tuple<GameObject, DateTime>>();
     
     void Start()
     {
@@ -81,19 +81,21 @@ public class PlayerController : MonoBehaviour
             GameObject new_guy = null;
             try {
                 new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
+                Debug.Log("instantiated player: " + username);
+                player_holder[username] = new Tuple<GameObject, DateTime>(new_guy, DateTime.Now + TimeSpan.FromSeconds(3));
+                Debug.Log(player_holder[username].Item1);
+                return new_guy;            
             }
             catch (Exception e) {
                 Debug.Log(e);
                 Application.Quit();
             }
-            Debug.Log("instantiated player: " + username);
-            player_holder[username] = new_guy;
-            Debug.Log(player_holder[username]);
-            return new_guy;
+            return null;
         }
         else {
             // Debug.Log("found player");
-            return player_holder[username];
+            player_holder[username] = new Tuple<GameObject, DateTime>(player_holder[username].Item1, DateTime.Now + TimeSpan.FromSeconds(3));
+            return player_holder[username].Item1;
         }
     }
 
@@ -126,10 +128,6 @@ public class PlayerController : MonoBehaviour
                 String key = lmaoo.Item1;
                 String val = lmaoo.Item2;
 
-                // if (key == "player_hash") {
-                    // remove later
-                    // val = val + "o";
-                // }
                 all_dict[key] = val;
             }
 
@@ -143,12 +141,6 @@ public class PlayerController : MonoBehaviour
                 remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
                 remotePlayer.transform.rotation = Quaternion.Euler(remotePlayer.transform.rotation.x, float.Parse(all_dict["body_rotY"]), remotePlayer.transform.rotation.z);
                 remotePlayer.transform.GetChild(0).rotation = Quaternion.Euler(float.Parse(all_dict["head_rotX"]), remotePlayer.transform.rotation.y, remotePlayer.transform.rotation.z);
-                // else if (key == "body_rotY") {
-                // else if (key == "body_rotZ") {
-                // else if (key == "head_rotX") {
-            }
-            else {
-                // Debug.Log("couldnt find player");
             }
         }
         catch (Exception e) {
@@ -160,16 +152,28 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         lock (__lockObj) {
-            // Debug.Log(to_add.Count);
             foreach (var msg in to_add) {
                 process_thing(msg);
             }
             to_add = new List<String>();
-            // Debug.Log(to_add.Count);
+
+            List<String> to_die = new List<String>();
+            foreach(KeyValuePair<String, Tuple<GameObject, DateTime>> entry in player_holder) {
+                if (entry.Value.Item2 < DateTime.Now) {
+                    to_die.Add(entry.Key);
+                }
+            }
+
+            foreach (var name in to_die) {
+                Debug.Log("REMOVING: " + name);
+                Destroy(player_holder[name].Item1);
+                player_holder.Remove(name);
+            }
         }
 
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
         RaycastHit hit;
+        string newUIText = "";
         // Does the ray intersect any objects excluding the player layer
         //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
@@ -181,29 +185,24 @@ public class PlayerController : MonoBehaviour
                 //Debug.Log("hit "+hit.transform.name);
                 if (isClicking)
                 {
-                    uiText.text = "";
                     obj.OnPlayerInteract(gameObject, 0);
                 }
                 else
                 {
-                    uiText.text = obj.getHoverMessage();
+                    newUIText = obj.getHoverMessage();
                 }
-            }
-            else if (uiText != null)
-            {
-                uiText.text = "";
             }
         }
         else
         {
-            if (uiText != null)
-            {
-                uiText.text = "";
-            }
             Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
             //Debug.Log("Did not Hit");
         }
         isClicking = false;
+        if (uiText != null)
+        {
+            uiText.text = newUIText;
+        }
     }
 
     void Update()

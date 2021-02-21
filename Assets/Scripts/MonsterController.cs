@@ -8,13 +8,15 @@ using UnityEngine.UI;
 
 public class MonsterController : MonoBehaviour
 {
-    public float speed = 8f;
+    public float speed = 4f;
     public float gravity = -9.81f;
     public float bounce = 0.04f;
     public float mouseSensitivity = 0.1f;
 
     public GameObject headBone;
     
+    private float maxSpeed;
+
     private Transform body;
     private Transform camera;
     //private Transform hand;
@@ -24,6 +26,7 @@ public class MonsterController : MonoBehaviour
     private float rotX = 0;
     private float movement = 0f;
     private bool isGrounded = true;
+    private bool isWalled = false;
     private GameObject crystal;
 
     private Animator animator;
@@ -48,13 +51,22 @@ public class MonsterController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
 
         animator = GetComponent<Animator>();
+        maxSpeed = speed;
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if(hit.normal.y > 0.5){
             isGrounded = true;
-        }else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
+            gravity = -9.81f;
+        }
+        else if (Mathf.Abs(hit.normal.x) > 0.5 || Mathf.Abs(hit.normal.z) > 0.5) {
+            isWalled = true;
+            transform.Rotate(90f * hit.normal);
+            //transform.rotation.eulerAngles.Set(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, -90f);
+            gravity = 0;
+        }
+        else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
         }
     }
@@ -118,15 +130,15 @@ public class MonsterController : MonoBehaviour
         }
 
         if (Input.GetKey(KeyCode.LeftControl)){
-        speed = 8;
+        speed = maxSpeed;
         }else{
-            speed = 4;
+            speed = maxSpeed/2;
         }
 
         if(Input.GetKey(KeyCode.LeftShift)){
-            speed = 8;
+            speed = maxSpeed;
         }else{
-            speed = 4;
+            speed = maxSpeed/2;
         }
 
         if(isGrounded){
@@ -147,7 +159,7 @@ public class MonsterController : MonoBehaviour
 
         if (Mathf.Abs(controller.velocity.x) > 0 || Mathf.Abs(controller.velocity.z) > 0)
         {
-            if (speed > 5) {
+            if (speed > 2.5) {
                 animator.SetInteger("movementState", 2);
             }
             else
