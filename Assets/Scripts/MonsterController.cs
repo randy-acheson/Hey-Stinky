@@ -140,7 +140,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
             UnityEditor.EditorApplication.isPlaying = false; 
         }
 
-        if(!Physics.CheckSphere(transform.position, 0.1f)){
+        if(!Physics.CheckSphere(transform.position, 0.1f, 1<<8)){
             isGrounded = false;
         }
 
@@ -193,6 +193,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
             }
             velY += gravity * Time.deltaTime;
         }
+        //Debug.Log("grounded: " + isGrounded);
 
         if (wallClicked)
         {

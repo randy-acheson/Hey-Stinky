@@ -111,7 +111,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
             UnityEditor.EditorApplication.isPlaying = false; 
         }
 
-        if(!Physics.CheckSphere(transform.position, 0.1f)){
+        if(!Physics.CheckSphere(transform.position, 0.1f, 1<<8)){
             isGrounded = false;
         }
 
