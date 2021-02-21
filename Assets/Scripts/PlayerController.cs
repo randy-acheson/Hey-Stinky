@@ -41,8 +41,10 @@ public class PlayerController : MonoBehaviour
 
     private float[] sendPacket = new float[6];
 
-    public object __lockObj = new object();
-    public List<String> to_add = new List<String>();
+    public object udp_lock = new object();
+    public object tcp_lock = new object();
+    public List<String> udp_strings_to_process = new List<String>();
+    public List<String> tcp_strings_to_process = new List<String>();
 
     public Dictionary<String, Tuple<GameObject, DateTime>> player_holder = new Dictionary<String, Tuple<GameObject, DateTime>>();
     
@@ -57,23 +59,18 @@ public class PlayerController : MonoBehaviour
         uiText = GetComponentInChildren<Text>();
 
         Cursor.lockState = CursorLockMode.Locked;
-
-        // client_connection = new ClientConnection(this);
-        // client_connection = gameObject.AddComponent<ClientConnection>(this) as ClientConnection;
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if(hit.normal.y > 0.5){
+        if (hit.normal.y > 0.5) {
             isGrounded = true;
-        }else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
+        } else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
         }
     }
 
-
     //////////////////////////////////////////////////////////////////////////////////////////////
-
 
     public GameObject GetPlayer(String username) {
         if (!player_holder.ContainsKey(username)) {
@@ -117,16 +114,25 @@ public class PlayerController : MonoBehaviour
         return new Tuple<String, String>(key, val);
     }
 
-    private void process_thing(String msg) {
+    private void process_tcp_messege(String msg) {
+        try {
+            
+        }
+        catch (Exception e) {
+            Debug.Log(e);
+        }
+    }
+
+    private void process_udp_messege(String msg) {
         try {
             GameObject remotePlayer = null;
             List<String> stuff2 = new List<String>(msg.Split(','));
 
             Dictionary<String, String> all_dict = new Dictionary<String, String>();
             foreach (var something in stuff2) {
-                Tuple<String, String> lmaoo = GetKeyVal(something);
-                String key = lmaoo.Item1;
-                String val = lmaoo.Item2;
+                Tuple<String, String> KeyValPair = GetKeyVal(something);
+                String key = KeyValPair.Item1;
+                String val = KeyValPair.Item2;
 
                 all_dict[key] = val;
             }
@@ -145,17 +151,16 @@ public class PlayerController : MonoBehaviour
         }
         catch (Exception e) {
             Debug.Log(e);
-            Application.Quit();
         }
     }
 
     private void FixedUpdate()
     {
-        lock (__lockObj) {
-            foreach (var msg in to_add) {
-                process_thing(msg);
+        lock (udp_lock) {
+            foreach (var msg in udp_strings_to_process) {
+                process_udp_messege(msg);
             }
-            to_add = new List<String>();
+            udp_strings_to_process = new List<String>();
 
             List<String> to_die = new List<String>();
             foreach(KeyValuePair<String, Tuple<GameObject, DateTime>> entry in player_holder) {
@@ -169,6 +174,13 @@ public class PlayerController : MonoBehaviour
                 Destroy(player_holder[name].Item1);
                 player_holder.Remove(name);
             }
+        }
+
+        lock (tcp_lock) {
+            foreach (var msg in tcp_strings_to_process) {
+                process_tcp_messege(msg);
+            }
+            tcp_strings_to_process = new List<String>();
         }
 
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
@@ -247,7 +259,7 @@ public class PlayerController : MonoBehaviour
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         float posZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
 
-        if(isGrounded && (posX !=0 || posZ != 0))
+        if(isGrounded && (posX != 0 || posZ != 0))
         {
             movement = (movement + 1.5f * Mathf.Max(Mathf.Abs(posX), Mathf.Abs(posZ))) % (Mathf.PI*2f);
         }
@@ -349,6 +361,7 @@ public class PlayerController : MonoBehaviour
         }
         return sb.ToString();
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Crystal") && crystal == null)

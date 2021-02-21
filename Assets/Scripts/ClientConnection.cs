@@ -23,7 +23,6 @@ public class ClientConnection : MonoBehaviour {
     UdpClient senderClient;
     UdpClient receiveClient;
     DateTime next_update = DateTime.Now;
-    const int opsToPreAlloc = 2;
     const int bufferSize = 1024;
     bool messageReceived = true;
     GameObject parent_guy;
@@ -89,8 +88,8 @@ public class ClientConnection : MonoBehaviour {
         }
 
 
-        lock (parent_guy_script.__lockObj) {
-            parent_guy_script.to_add.Add(receiveString);
+        lock (parent_guy_script.udp_lock) {
+            parent_guy_script.udp_strings_to_process.Add(receiveString);
         }
 
         UdpState state = new UdpState();
