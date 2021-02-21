@@ -102,7 +102,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
                     newUIText = obj.getHoverMessage();
                 }
             }
-            else if (hit.transform.CompareTag("House") && isClicking && hit.distance < 2)
+            else if (hit.transform.gameObject.layer == 8 && isClicking && hit.distance < 2)
             {
                 //Debug.Log("Walling");
                 wallClicked = true;

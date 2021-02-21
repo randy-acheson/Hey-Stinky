@@ -327,6 +327,10 @@ public class PlayerController : MonoBehaviour, CreatureBase
     public void Die()
     {
         Debug.Log("You died");
+        if (uiText != null)
+        {
+            uiText.text = "You died";
+        }
         isDead = true;
         body.GetComponent<MeshRenderer>().enabled = false; 
     }
