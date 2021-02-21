@@ -20,7 +20,9 @@ public class PlayerController : MonoBehaviour
     public float speed = 8f;
     public float gravity = -9.81f;
     public float bounce = 0.04f;
-    public float mouseSensitivity = 0.1f;
+    public float mouseSensitivity = 400f;
+
+    public float flashlightIntensity = 3.5f;
     
     private Transform body;
     private Transform camera;
@@ -38,12 +40,14 @@ public class PlayerController : MonoBehaviour
     private Text uiText;
     private bool isClicking = false;
 
-    public string player_hash;
+    public String player_hash;
 
     private float[] sendPacket = new float[6];
 
-    public object __lockObj = new object();
-    public List<String> to_add = new List<String>();
+    public object udp_lock = new object();
+    public object tcp_lock = new object();
+    public List<String> udp_strings_to_process = new List<String>();
+    public List<String> tcp_strings_to_process = new List<String>();
 
     public Dictionary<String, Tuple<GameObject, DateTime>> player_holder = new Dictionary<String, Tuple<GameObject, DateTime>>();
     
@@ -58,23 +62,18 @@ public class PlayerController : MonoBehaviour
         uiText = GetComponentInChildren<Text>();
 
         Cursor.lockState = CursorLockMode.Locked;
-
-        // client_connection = new ClientConnection(this);
-        // client_connection = gameObject.AddComponent<ClientConnection>(this) as ClientConnection;
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if(hit.normal.y > 0.5){
+        if (hit.normal.y > 0.01) {
             isGrounded = true;
-        }else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
+        } else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
         }
     }
 
-
     //////////////////////////////////////////////////////////////////////////////////////////////
-
 
     public GameObject GetPlayer(String username) {
         if (!player_holder.ContainsKey(username)) {
@@ -115,22 +114,38 @@ public class PlayerController : MonoBehaviour
         String key;
         key = stuff3[0].Trim();
         val = stuff3[1].Trim();
-        return new Tuple<String, String>(key, val);
+        var temp = new Tuple<String, String>(key, val);
+        return temp;
     }
 
-    private void process_thing(String msg) {
+    private void process_tcp_messege(String msg) {
+        try {
+            
+        }
+        catch (Exception e) {
+            Debug.Log(e);
+        }
+    }
+
+    public Dictionary<String, String> stringmuncher(String string_to_munch) {
+        Dictionary<String, String> dict = new Dictionary<String, String>();
+        
+        List<String> stuff2 = new List<String>(string_to_munch.Split(','));
+        foreach (var something in stuff2) {
+            Tuple<String, String> KeyValPair = GetKeyVal(something);
+            String key = KeyValPair.Item1;
+            String val = KeyValPair.Item2;
+
+            dict[key] = val;
+        }
+        return dict;
+    }
+
+
+    private void process_udp_messege(String msg) {
         try {
             GameObject remotePlayer = null;
-            List<String> stuff2 = new List<String>(msg.Split(','));
-
-            Dictionary<String, String> all_dict = new Dictionary<String, String>();
-            foreach (var something in stuff2) {
-                Tuple<String, String> lmaoo = GetKeyVal(something);
-                String key = lmaoo.Item1;
-                String val = lmaoo.Item2;
-
-                all_dict[key] = val;
-            }
+            Dictionary<String, String> all_dict = stringmuncher(msg);
 
             if (all_dict["player_hash"] == player_hash) {
                 return;
@@ -140,23 +155,22 @@ public class PlayerController : MonoBehaviour
 
             if (remotePlayer != null) {
                 remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
-                remotePlayer.transform.rotation = Quaternion.Euler(remotePlayer.transform.rotation.x, float.Parse(all_dict["body_rotY"]), remotePlayer.transform.rotation.z);
-                remotePlayer.transform.GetChild(0).rotation = Quaternion.Euler(float.Parse(all_dict["head_rotX"]), remotePlayer.transform.rotation.y, remotePlayer.transform.rotation.z);
+                remotePlayer.transform.rotation = Quaternion.Euler(0, float.Parse(all_dict["body_rotY"]), 0);
+                remotePlayer.transform.GetChild(0).localRotation = Quaternion.Euler(float.Parse(all_dict["head_rotX"]), 0, 0);
             }
         }
         catch (Exception e) {
             Debug.Log(e);
-            Application.Quit();
         }
     }
 
     private void FixedUpdate()
     {
-        lock (__lockObj) {
-            foreach (var msg in to_add) {
-                process_thing(msg);
+        lock (udp_lock) {
+            foreach (var msg in udp_strings_to_process) {
+                process_udp_messege(msg);
             }
-            to_add = new List<String>();
+            udp_strings_to_process = new List<String>();
 
             List<String> to_die = new List<String>();
             foreach(KeyValuePair<String, Tuple<GameObject, DateTime>> entry in player_holder) {
@@ -170,6 +184,13 @@ public class PlayerController : MonoBehaviour
                 Destroy(player_holder[name].Item1);
                 player_holder.Remove(name);
             }
+        }
+
+        lock (tcp_lock) {
+            foreach (var msg in tcp_strings_to_process) {
+                process_tcp_messege(msg);
+            }
+            tcp_strings_to_process = new List<String>();
         }
 
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
@@ -248,7 +269,7 @@ public class PlayerController : MonoBehaviour
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         float posZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
 
-        if(isGrounded && (posX !=0 || posZ != 0))
+        if(isGrounded && (posX != 0 || posZ != 0))
         {
             movement = (movement + 1.5f * Mathf.Max(Mathf.Abs(posX), Mathf.Abs(posZ))) % (Mathf.PI*2f);
         }
@@ -319,7 +340,7 @@ public class PlayerController : MonoBehaviour
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 
-        flashlight.intensity = Mathf.Min(40f + noise*160f, 80f);
+        flashlight.intensity = Mathf.Min(0.5f*flashlightIntensity + (noise*4f*flashlightIntensity), flashlightIntensity);
     }
 
     private void OnMouseDown()
@@ -350,6 +371,7 @@ public class PlayerController : MonoBehaviour
         }
         return sb.ToString();
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Crystal") && crystal == null)
@@ -374,16 +396,27 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public string getPositionDict() {
+    public Dictionary<String, String> getPositionDict() {
         Vector3 player_xyz_pos = gameObject.transform.position;
         Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
         float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
-        return $"player_hash: {player_hash}, body_posX: {player_xyz_pos.x}, body_posY: {player_xyz_pos.y}, " + 
-                $"body_posZ: {player_xyz_pos.z}, head_rotX: {head_x_rot}, body_rotY: {player_xyz_rot.y}, body_rotZ: {player_xyz_rot.z}";
+
+        Dictionary<String, String> dict = new Dictionary<String, String> {
+            {"player_hash", player_hash},
+            {"body_posX", player_xyz_pos.x.ToString()},
+            {"body_posY", player_xyz_pos.y.ToString()},
+            {"body_posZ", player_xyz_pos.z.ToString()},
+            {"head_rotX", head_x_rot.ToString()},
+            {"body_rotY", player_xyz_rot.y.ToString()},
+            {"body_rotZ", player_xyz_rot.z.ToString()},
+        };
+
+        return dict;
+        // return $"player_hash: {player_hash}, body_posX: {player_xyz_pos.x}, body_posY: {player_xyz_pos.y}, " + 
+                // $"body_posZ: {player_xyz_pos.z}, head_rotX: {head_x_rot}, body_rotY: {player_xyz_rot.y}, body_rotZ: {player_xyz_rot.z}";
     }
 
-    public void hideInCloset(GameObject closet)
-    {
+    public void hideInCloset(GameObject closet) {
         transform.position = closet.transform.position;
     }
 }
