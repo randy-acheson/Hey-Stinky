@@ -7,6 +7,7 @@ HOST_ADDR = "192.168.86.61"
 TCP_PORT = 7777
 
 subscribers = set()
+mutex = Lock()
 
 def serverStartup():
     s_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,8 +31,11 @@ def spawnTCPConnection(connection):
         if (not tcp_data or tcp_data==b'exit'):
             print("Connection Killed")
             break
+        
+        mutex.acquire();
         for s in subscribers:
             s.sendall(tcp_data)
+        mutex.release();
 
     subscribers.remove(connection)
     connection.close()

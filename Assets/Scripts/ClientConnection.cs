@@ -124,18 +124,15 @@ public class AsyncTCPClient {
     private static StateObject state = new StateObject();
 
     public static void StartClient() {
-        using (StreamWriter sw = File.AppendText(@"C:\Programming\hey-stinky\Assets\Scripts\debug.txt")){sw.WriteLine("Started\n");}
         Socket s_tcp = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         IPEndPoint serverEP = new IPEndPoint(IPAddress.Parse(SERVER_ADDR), PORT);
 
         s_tcp.BeginConnect(serverEP, new AsyncCallback(ConnectCallback), s_tcp);
-        using (StreamWriter sw = File.AppendText(@"C:\Programming\hey-stinky\Assets\Scripts\debug.txt")){sw.WriteLine("Connected\n");}
         connectDone.WaitOne();
 
         state.workSocket = s_tcp;
         stateObjectBuilt.Set();
         s_tcp.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
-        using (StreamWriter sw = File.AppendText(@"C:\Programming\hey-stinky\Assets\Scripts\debug.txt")){sw.WriteLine("Recieved\n");}
     }
 
     private static void ConnectCallback(IAsyncResult ar) {
@@ -178,6 +175,5 @@ public class AsyncTCPClient {
         stateObjectBuilt.WaitOne();
         state.workSocket.Shutdown(SocketShutdown.Both);
         state.workSocket.Close();
-        using (StreamWriter sw = File.AppendText(@"C:\Programming\hey-stinky\Assets\Scripts\debug.txt")){sw.WriteLine("Done\n");}
     }
 }
