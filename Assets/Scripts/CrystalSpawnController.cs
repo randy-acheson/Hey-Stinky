@@ -7,6 +7,7 @@ using UnityEngine;
 public class CrystalSpawnController : MonoBehaviour
 {
     public GameObject crystalPrefab;
+    public int numCrystals;
 
     private List<GameObject> allSpawns = new List<GameObject>();
     private List<GameObject> filledSpawns = new List<GameObject>();
@@ -18,6 +19,8 @@ public class CrystalSpawnController : MonoBehaviour
         {
             allSpawns.Add(child.gameObject);
         }
+
+        SpawnCrystals();
     }
 
     // Update is called once per frame
@@ -26,7 +29,7 @@ public class CrystalSpawnController : MonoBehaviour
         
     }
 
-    public void SpawnCrystals(int numCrystals)
+    public void SpawnCrystals()
     {
         var r = new System.Random();
         var randomValues = Enumerable.Range(0, allSpawns.Count)

@@ -152,7 +152,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &136254231
 MonoBehaviour:
@@ -166,10 +166,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66f276ff9c683ab4f8e3951c8c3079ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  crystals: {fileID: 1298792963}
   crystalSpawns: {fileID: 874097628}
   goal: {fileID: 1509421268}
-  numCrystals: 5
 --- !u!1 &239493833
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,7 +327,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &258730295
 GameObject:
@@ -835,6 +833,24 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 604446833}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &755322034 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7938526937360545090, guid: 8d84425cee2f444419d98ff3d51c1fad, type: 3}
+  m_PrefabInstance: {fileID: 7938526936759445099}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &755322036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755322034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dc73249aa4f90d429f9b1dbcb6a81fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerPrefabNoCodeReal: {fileID: 3506661140012841385, guid: d5a8a16e148beef4d9efaf9db6bb7013, type: 3}
 --- !u!1 &853607681
 GameObject:
   m_ObjectHideFlags: 0
@@ -976,7 +992,7 @@ Transform:
   - {fileID: 1469449099}
   - {fileID: 258730296}
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &874097630
 MonoBehaviour:
@@ -991,6 +1007,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   crystalPrefab: {fileID: 3237875516236869100, guid: 50f8f535e4484bf4c8c4e346125b5a94, type: 3}
+  numCrystals: 5
 --- !u!1 &882335548
 GameObject:
   m_ObjectHideFlags: 0
@@ -1435,7 +1452,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1218263201
 MonoBehaviour:
@@ -1545,36 +1562,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1233033102}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1298792963
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1298792964}
-  m_Layer: 0
-  m_Name: Crystals
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1298792964
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1298792963}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1311772013
 GameObject:
   m_ObjectHideFlags: 0
@@ -1605,7 +1592,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0075710fe05b1b42af9dd6c9e169bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefabNoCodeReal: {fileID: 0}
+  playerPrefabNoCodeReal: {fileID: 3506661140012841385, guid: d5a8a16e148beef4d9efaf9db6bb7013, type: 3}
   speed: 8
   gravity: -9.81
   bounce: 0.04
@@ -1645,7 +1632,7 @@ Transform:
   - {fileID: 950778004}
   - {fileID: 1580563731}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1388685784
 GameObject:
@@ -2080,7 +2067,7 @@ Transform:
   m_LocalScale: {x: 0.75, y: 1.0925611, z: 0.75}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1525243991
 GameObject:
