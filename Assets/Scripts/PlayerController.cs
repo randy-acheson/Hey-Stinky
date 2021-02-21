@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 using UnityEngine;
+using UnityEditor;
 using UnityEngine.UI;
 
 using System.Net.Sockets;
@@ -40,15 +41,6 @@ public class PlayerController : MonoBehaviour
     private bool isClicking = false;
 
     public String player_hash;
-
-    private float[] sendPacket = new float[6];
-
-    public object udp_lock = new object();
-    public object tcp_lock = new object();
-    public List<String> udp_strings_to_process = new List<String>();
-    public List<String> tcp_strings_to_process = new List<String>();
-
-    public Dictionary<String, Tuple<GameObject, DateTime>> player_holder = new Dictionary<String, Tuple<GameObject, DateTime>>();
     
     void Start()
     {
@@ -72,128 +64,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-
-    public GameObject GetPlayer(String username) {
-        if (!player_holder.ContainsKey(username)) {
-            Debug.Log("instantiating player named: " + username);
-            GameObject new_guy = null;
-            try {
-                new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
-                Debug.Log("instantiated player: " + username);
-                player_holder[username] = new Tuple<GameObject, DateTime>(new_guy, DateTime.Now + TimeSpan.FromSeconds(3));
-                Debug.Log(player_holder[username].Item1);
-                return new_guy;            
-            }
-            catch (Exception e) {
-                Debug.Log(e);
-                Application.Quit();
-            }
-            return null;
-        }
-        else {
-            // Debug.Log("found player");
-            player_holder[username] = new Tuple<GameObject, DateTime>(player_holder[username].Item1, DateTime.Now + TimeSpan.FromSeconds(3));
-            return player_holder[username].Item1;
-        }
-    }
-
-    public void HandlePlayerInteract(String username, String Object, byte action){
-        GameObject player = GameObject.Find(username);
-        if (player == null){
-            Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
-        }
-        GameObject.Find(Object).GetComponent<InteractiveObject>().OnPlayerInteract(player, action);
-    }
-    //////////////////
-
-    private Tuple<String, String> GetKeyVal(String something) {
-        List<String> stuff3 = new List<String>(something.Split(':'));
-        String val;
-        String key;
-        key = stuff3[0].Trim();
-        val = stuff3[1].Trim();
-        var temp = new Tuple<String, String>(key, val);
-        return temp;
-    }
-
-    private void process_tcp_messege(String msg) {
-        try {
-            Dictionary<string, string> argDict = stringmuncher(msg);
-            DictCommandEvaluator dcm = new DictCommandEvaluator();
-            dcm.eval(argDict["function"], new object[] {argDict});
-        }
-        catch (Exception e) {
-            Debug.Log(e);
-        }
-    }
-
-    public Dictionary<String, String> stringmuncher(String string_to_munch) {
-        Dictionary<String, String> dict = new Dictionary<String, String>();
-        
-        List<String> stuff2 = new List<String>(string_to_munch.Split(','));
-        foreach (var something in stuff2) {
-            Tuple<String, String> KeyValPair = GetKeyVal(something);
-            String key = KeyValPair.Item1;
-            String val = KeyValPair.Item2;
-
-            dict[key] = val;
-        }
-        return dict;
-    }
-
-
-    private void process_udp_messege(String msg) {
-        try {
-            GameObject remotePlayer = null;
-            Dictionary<String, String> all_dict = stringmuncher(msg);
-
-            if (all_dict["player_hash"] == player_hash) {
-                return;
-            }
-            // Debug.Log("getting palyer");
-            remotePlayer = GetPlayer(all_dict["player_hash"]);
-
-            if (remotePlayer != null) {
-                remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
-                remotePlayer.transform.rotation = Quaternion.Euler(0, float.Parse(all_dict["body_rotY"]), 0);
-                remotePlayer.transform.GetChild(0).localRotation = Quaternion.Euler(float.Parse(all_dict["head_rotX"]), 0, 0);
-            }
-        }
-        catch (Exception e) {
-            Debug.Log(e);
-        }
-    }
-
     private void FixedUpdate()
     {
-        lock (udp_lock) {
-            foreach (var msg in udp_strings_to_process) {
-                process_udp_messege(msg);
-            }
-            udp_strings_to_process = new List<String>();
-
-            List<String> to_die = new List<String>();
-            foreach(KeyValuePair<String, Tuple<GameObject, DateTime>> entry in player_holder) {
-                if (entry.Value.Item2 < DateTime.Now) {
-                    to_die.Add(entry.Key);
-                }
-            }
-
-            foreach (var name in to_die) {
-                Debug.Log("REMOVING: " + name);
-                Destroy(player_holder[name].Item1);
-                player_holder.Remove(name);
-            }
-        }
-
-        lock (tcp_lock) {
-            foreach (var msg in tcp_strings_to_process) {
-                process_tcp_messege(msg);
-            }
-            tcp_strings_to_process = new List<String>();
-        }
-
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
         RaycastHit hit;
         string newUIText = "";
@@ -302,10 +174,6 @@ public class PlayerController : MonoBehaviour
 
         controller.Move(transform.right*posX + transform.forward*posZ + Vector3.up*posY);
 
-        sendPacket[0] = transform.position.x;
-        sendPacket[1] = transform.position.y;
-        sendPacket[2] = transform.position.z;
-
         /////////////////////////////////
 
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
@@ -316,9 +184,6 @@ public class PlayerController : MonoBehaviour
 
         camera.localRotation = Quaternion.Euler(rotX, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
-
-        sendPacket[3] = camera.localRotation.x;
-        sendPacket[4] = transform.rotation.y;
 
         /////////////////////////////////
     
@@ -331,11 +196,6 @@ public class PlayerController : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.E)){
             flashlight.enabled = !flashlight.enabled;
-            if(flashlight.enabled){
-                sendPacket[5] = 1f;
-            }else{
-                sendPacket[5] = 0f;
-            }
             hand.gameObject.SetActive(!hand.gameObject.activeSelf);
             Dictionary<string, string> tcpFlashlightCommand = new Dictionary<string, string>();
             tcpFlashlightCommand["function"] = "toggleFlashlight";
@@ -407,6 +267,9 @@ public class PlayerController : MonoBehaviour
         Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
         float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
 
+        // var prefabGameObject = PrefabUtility.GetCorrespondingObjectFromSource(GameObject.Find("playerPrefab"));
+        // Debug.Log(prefabGameObject);
+
         Dictionary<String, String> dict = new Dictionary<String, String> {
             {"player_hash", player_hash},
             {"body_posX", player_xyz_pos.x.ToString()},
@@ -415,11 +278,10 @@ public class PlayerController : MonoBehaviour
             {"head_rotX", head_x_rot.ToString()},
             {"body_rotY", player_xyz_rot.y.ToString()},
             {"body_rotZ", player_xyz_rot.z.ToString()},
+            {"prefab_name", "playerPrefab"},
         };
 
         return dict;
-        // return $"player_hash: {player_hash}, body_posX: {player_xyz_pos.x}, body_posY: {player_xyz_pos.y}, " + 
-                // $"body_posZ: {player_xyz_pos.z}, head_rotX: {head_x_rot}, body_rotY: {player_xyz_rot.y}, body_rotZ: {player_xyz_rot.z}";
     }
 
     public void hideInCloset(GameObject closet) {

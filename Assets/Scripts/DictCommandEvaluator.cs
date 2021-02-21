@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class DictCommandEvaluator {
     PlayerController parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
+    ClientConnection client_connection_script = GameObject.FindObjectOfType<ClientConnection>();
 
     public void eval(string command) {
         Type command_eval_type = this.GetType();
@@ -23,7 +24,7 @@ public class DictCommandEvaluator {
     //     isLightOn;
     public void toggleFlashlight(Dictionary<string, string> args) {
         try {
-            GameObject player = parent_guy_script.GetPlayer(args["playerHash"]);
+            GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
             if (player != parent_guy_script.gameObject) {
                 Transform target_hand = player.transform.Find("Head/Hand");
                 target_hand.gameObject.SetActive((bool) (args["isLightOn"]=="True"));
