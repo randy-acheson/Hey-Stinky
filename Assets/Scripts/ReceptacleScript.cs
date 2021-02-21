@@ -27,7 +27,7 @@ public class ReceptacleScript : MonoBehaviour
             .SetTransformParent(gameObject.transform);
         crystal.GetComponent<CrystalController>().isDeposited = true;
 
-        if (crystals.Count == gameState.GetComponent<GameStateScript>().numCrystals)
+        if (crystals.Count == gameState.GetComponent<GameStateScript>().GetNumCrystals())
         {
             gameState.GetComponent<GameStateScript>().OpenPortal();
         }
