@@ -63,7 +63,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
     {
         //Debug.Log("hit: " + hit.normal);
         if(!isWalled && hit.normal.y > 0.9){
-            Debug.Log("hitting wrong thing");
+            // Debug.Log("hitting wrong thing");
 
             isGrounded = true;
             isWalled = false;

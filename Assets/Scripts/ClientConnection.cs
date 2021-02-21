@@ -47,14 +47,15 @@ public class ClientConnection : MonoBehaviour {
         IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.61"), 5006); // endpoint where server is listening
         senderClient.Connect(ep);
 
-        parent_guy = GameObject.Find("playerPrefab");
+        // parent_guy = GameObject.Find("playerPrefab");
 
-        try {
-            parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
-        }
-        catch (Exception e) {
-            parent_guy_script = GameObject.FindObjectOfType<MonsterController>();
-        }
+        parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
+        // try {
+            // parent_guy_script = GameObject.FindObjectOfType<MonsterController>();
+        // }
+        // catch (Exception e) {
+            // parent_guy_script = GameObject.FindObjectOfType<MonsterController>();
+        // }
 
         UdpState state = new UdpState();
         state.ip = RemoteIpEndPoint;
