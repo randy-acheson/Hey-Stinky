@@ -39,7 +39,7 @@ public class DictCommandEvaluator {
         try
         {
             GameObject player = client_connection_script.GetRemotePlayer(args["playerHash"]);
-            if (player != client_connection_script.current_creature_script.getGameObject())
+            if (player != null && player != client_connection_script.current_creature_script.getGameObject())
             {
                 Animator target_animator = player.GetComponent<Animator>();
                 if(args.ContainsKey("action"))
