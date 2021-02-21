@@ -19,9 +19,9 @@ public class CrystalSpawnController : MonoBehaviour
         {
             allSpawns.Add(child.gameObject);
         }
-
-        PlayerController parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
-        SpawnCrystals(parent_guy_script.rSeed);
+    
+        ClientConnection client_connection_script = GameObject.FindObjectOfType<ClientConnection>();
+        SpawnCrystals(client_connection_script.rSeed);
     }
 
     // Update is called once per frame

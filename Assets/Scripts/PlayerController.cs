@@ -44,7 +44,6 @@ public class PlayerController : MonoBehaviour, CreatureBase
     private bool isClicking = false;
 
     public String player_hash;
-    public Int32 rSeed;
     
     void Start()
     {
