@@ -34,4 +34,25 @@ public class DictCommandEvaluator {
             Debug.Log(e);
         }
     }
+
+    public void selectCharacter(Dictionary<string,string> args)
+    {
+        try
+        {
+            GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
+
+            if (player == parent_guy_script.gameObject)
+            {
+                parent_guy_script.character = args["character"];
+            }
+            
+            GameObject.Find("CharacterSelectors")
+                .GetComponent<CharacterSelectionController>()
+                .CharacterSelected(args["character"]);            
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e);
+        }
+    }
 }

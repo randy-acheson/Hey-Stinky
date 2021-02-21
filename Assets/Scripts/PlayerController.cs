@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
     public float bounce = 0.04f;
     public float mouseSensitivity = 400f;
     public float flashlightIntensity = 3.5f;
+    public string character;
     
     private Transform body;
     private Transform camera;
@@ -34,7 +35,6 @@ public class PlayerController : MonoBehaviour, CreatureBase
     private float movement = 0f;
     private bool isGrounded = true;
     private GameObject crystal;
-    private string character;
 
     private DateTime next_update = DateTime.Now;
 
@@ -265,7 +265,15 @@ public class PlayerController : MonoBehaviour, CreatureBase
         {
             character = GameObject.Find("CharacterSelectors")
                 .GetComponent<CharacterSelectionController>()
-                .CharacterSelected(other.gameObject);
+                .GetCharacter(other.gameObject);
+
+            Dictionary<string, string> tcpCharacterSelectCmd = new Dictionary<string, string>
+            {
+                ["function"] = "selectCharacter",
+                ["playerHash"] = player_hash,
+                ["character"] = character
+            };
+            AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpCharacterSelectCmd));
         }
     }
 
