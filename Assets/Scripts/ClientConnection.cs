@@ -128,11 +128,13 @@ public class ClientConnection : MonoBehaviour {
                     UnityEditor.EditorApplication.isPlaying = false;
                 }
 
+                Vector3 old_position = player.transform.position;
+
                 DestroyImmediate(player);
                 DestroyImmediate(player_controller_script);
                 player_controller_script = null;
 
-                GameObject new_monster = Instantiate(crawlerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+                GameObject new_monster = Instantiate(crawlerWithCode, old_position, Quaternion.identity);
                 new_monster.name = "crawlerPrefab";
             }
             else if (player_controller_script == null) {
@@ -142,11 +144,13 @@ public class ClientConnection : MonoBehaviour {
                     UnityEditor.EditorApplication.isPlaying = false;
                 }
 
+                Vector3 old_position = monster.transform.position;
+
                 DestroyImmediate(monster);
                 DestroyImmediate(monster_controller_script);
                 monster_controller_script = null;
 
-                GameObject new_player = Instantiate(playerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+                GameObject new_player = Instantiate(playerWithCode, old_position, Quaternion.identity);
                 new_player.name = "playerPrefab";
             }
 
