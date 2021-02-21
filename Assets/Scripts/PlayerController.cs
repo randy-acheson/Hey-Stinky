@@ -58,8 +58,9 @@ public class PlayerController : MonoBehaviour, CreatureBase
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.normal.y > 0.01) {
+        if (hit.normal.y > 0.1) {
             isGrounded = true;
+            velY = 0;
         } else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
         }
@@ -108,7 +109,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
             UnityEditor.EditorApplication.isPlaying = false; 
         }
 
-        if(!Physics.CheckSphere(transform.position, 0.1f)){
+        if(!Physics.CheckSphere(transform.position + (transform.up * 0.1), 0.13f)){
             isGrounded = false;
         }
 
