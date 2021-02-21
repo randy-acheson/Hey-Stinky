@@ -22,10 +22,15 @@ public class DictCommandEvaluator {
     //     playerHash;
     //     isLightOn;
     public void toggleFlashlight(Dictionary<string, string> args) {
-        GameObject player = parent_guy_script.GetPlayer(args["playerHash"]);
-        if (player != parent_guy_script.gameObject) {
-            Transform target_hand = player.transform.Find("/head/hand");
-            target_hand.gameObject.SetActive((bool) (args["isLightOn"]=="True"));
+        try {
+            GameObject player = parent_guy_script.GetPlayer(args["playerHash"]);
+            if (player != parent_guy_script.gameObject) {
+                Transform target_hand = player.transform.Find("Head").Find("Hand");
+                target_hand.gameObject.SetActive((bool) (args["isLightOn"]=="True"));
+            }
+        }
+        catch (Exception e) {
+            Debug.Log(e);
         }
     }
 }
