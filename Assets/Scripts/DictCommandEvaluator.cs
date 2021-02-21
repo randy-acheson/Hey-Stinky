@@ -34,6 +34,12 @@ public class DictCommandEvaluator {
         }
     }
 
+    // Requires:
+    //      seed
+    public void seedRng(Dictionary<string, string> args) {
+        client_connection_script.rSeed = Int32.Parse(args["seed"]);
+    }
+
     public void monsterAction(Dictionary<string, string> args)
     {
         try
