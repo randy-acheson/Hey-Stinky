@@ -22,7 +22,7 @@ public class ClientConnection : MonoBehaviour {
     UdpClient receiveClient;
     DateTime next_update = DateTime.Now;
     const int bufferSize = 1024;
-    bool messageReceived = true;
+    //bool messageReceived = true;
     GameObject parent_guy;
     PlayerController parent_guy_script;
 
