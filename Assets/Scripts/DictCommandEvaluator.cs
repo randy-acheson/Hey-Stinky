@@ -23,8 +23,8 @@ public class DictCommandEvaluator {
     //     isLightOn;
     public void toggleFlashlight(Dictionary<string, string> args) {
         try {
-            GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
-            if (player != client_connection_script.current_creature_script.getGameObject()) {
+            if (args["playerHash"] != client_connection_script.current_creature_script.get_player_hash()) {
+                GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
                 Transform target_hand = player.transform.Find("Head/Hand");
                 target_hand.gameObject.SetActive((bool) (args["isLightOn"]=="True"));
             }

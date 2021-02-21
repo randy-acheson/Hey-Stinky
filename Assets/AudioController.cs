@@ -20,10 +20,10 @@ public class AudioController : MonoBehaviour
         if (!audio.isPlaying)
         {
 
-            clipIndex = Random.Range(0, clips.Length - 1);
+            clipIndex = Random.Range(0, clips.Length);
             audio.clip = clips[clipIndex];
             audio.PlayDelayed(Random.Range(10f, 20f));
-            Debug.Log("Nothing playing, we set new audio to " + audio.clip.name);
+            Debug.Log("Nothing playing, set new audio to " + audio.clip.name);
         }
     }
 }
