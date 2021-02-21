@@ -83,7 +83,9 @@ public class ClientConnection : MonoBehaviour {
 
     public void tryLoadCreatureScripts() {
         try {
-            player_controller_script = GameObject.FindObjectOfType<PlayerController>();
+            GameObject player = GameObject.Find("playerPrefab");
+            player_controller_script = player.GetComponent<PlayerController>();
+            Debug.Log("found this while looking for player controller script: " + player_controller_script.ToString());
         }
         catch (Exception e) {
             Debug.Log(e);
@@ -91,7 +93,9 @@ public class ClientConnection : MonoBehaviour {
         }
 
         try {
-            monster_controller_script = GameObject.FindObjectOfType<MonsterController>();
+            GameObject crawler = GameObject.Find("crawlerPrefab");
+            monster_controller_script = crawler.GetComponent<MonsterController>();
+            Debug.Log("found this while looking for monster controller script: " + monster_controller_script.ToString());
         }
         catch (Exception e) {
             Debug.Log(e);
@@ -124,7 +128,10 @@ public class ClientConnection : MonoBehaviour {
                     UnityEditor.EditorApplication.isPlaying = false;
                 }
 
-                Destroy(player);
+                DestroyImmediate(player);
+                DestroyImmediate(player_controller_script);
+                player_controller_script = null;
+
                 GameObject new_monster = Instantiate(crawlerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
                 new_monster.name = "crawlerPrefab";
             }
@@ -135,12 +142,14 @@ public class ClientConnection : MonoBehaviour {
                     UnityEditor.EditorApplication.isPlaying = false;
                 }
 
-                Destroy(monster);
+                DestroyImmediate(monster);
+                DestroyImmediate(monster_controller_script);
+                monster_controller_script = null;
+
                 GameObject new_player = Instantiate(playerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
                 new_player.name = "playerPrefab";
             }
-            monster_controller_script = null;
-            player_controller_script = null;
+
             current_creature_script = null;
             assignCreatureIfNull();
         }
@@ -202,7 +211,7 @@ public class ClientConnection : MonoBehaviour {
 
             foreach (var name in to_die) {
                 Debug.Log("REMOVING: " + name);
-                Destroy(player_holder[name].Item1);
+                DestroyImmediate(player_holder[name].Item1);
                 player_holder.Remove(name);
             }
         }
