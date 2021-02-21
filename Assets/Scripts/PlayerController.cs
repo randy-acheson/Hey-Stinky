@@ -22,7 +22,8 @@ public class PlayerController : MonoBehaviour
     public float speed = 8f;
     public float gravity = -9.81f;
     public float bounce = 0.04f;
-    public float mouseSensitivity = 300f;
+    public float mouseSensitivity = 400f;
+    public float flashlightIntensity = 3.5f;
     
     private Transform body;
     private Transform camera;
@@ -66,7 +67,7 @@ public class PlayerController : MonoBehaviour
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.normal.y > 0.5) {
+        if (hit.normal.y > 0.01) {
             isGrounded = true;
         } else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
@@ -127,19 +128,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public Dictionary<String, String> stringmuncher(String string_to_munch) {
+        Dictionary<String, String> dict = new Dictionary<String, String>();
+        
+        List<String> stuff2 = new List<String>(string_to_munch.Split(','));
+        foreach (var something in stuff2) {
+            Tuple<String, String> KeyValPair = GetKeyVal(something);
+            String key = KeyValPair.Item1;
+            String val = KeyValPair.Item2;
+
+            dict[key] = val;
+        }
+        return dict;
+    }
+
+
     private void process_udp_messege(String msg) {
         try {
             GameObject remotePlayer = null;
-            List<String> stuff2 = new List<String>(msg.Split(','));
-
-            Dictionary<String, String> all_dict = new Dictionary<String, String>();
-            foreach (var something in stuff2) {
-                Tuple<String, String> KeyValPair = GetKeyVal(something);
-                String key = KeyValPair.Item1;
-                String val = KeyValPair.Item2;
-
-                all_dict[key] = val;
-            }
+            Dictionary<String, String> all_dict = stringmuncher(msg);
 
             if (all_dict["player_hash"] == player_hash) {
                 return;
@@ -334,7 +341,7 @@ public class PlayerController : MonoBehaviour
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 
-        flashlight.intensity = Mathf.Min(40f + noise*160f, 80f);
+        flashlight.intensity = Mathf.Min(0.5f*flashlightIntensity + (noise*4f*flashlightIntensity), flashlightIntensity);
     }
 
     private void OnMouseDown()
