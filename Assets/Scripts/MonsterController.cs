@@ -112,7 +112,7 @@ public class MonsterController : MonoBehaviour
         //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         if (Physics.Raycast(camera.transform.position, camera.transform.up, out hit, Mathf.Infinity))
         {
-            Debug.DrawRay(camera.transform.position, camera.transform.up, Color.yellow, 1f, false);
+            //Debug.DrawRay(camera.transform.position, camera.transform.up, Color.yellow, 1f, false);
             //Debug.Log(hit.collider.gameObject.GetComponent<CrystalController>());
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
 //            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
@@ -148,7 +148,7 @@ public class MonsterController : MonoBehaviour
         layerMask = ~layerMask;
         if (isWalled)
         {
-            Debug.DrawRay(transform.position, -1f * transform.up, Color.blue, 0.5f);
+           // Debug.DrawRay(transform.position, -1f * transform.up, Color.blue, 0.5f);
             if (!Physics.Raycast(transform.position, -1f * transform.up, out hit2, 0.5f))
             {
                 wallLeft = true;
@@ -311,6 +311,20 @@ public class MonsterController : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.E)){
             animator.SetTrigger("attack");
+            RaycastHit hit;
+            Debug.DrawRay(camera.transform.position, camera.transform.up, Color.red, 1.5f);
+            // Does the ray intersect any objects excluding the player layer
+            if (Physics.Raycast(camera.transform.position, camera.transform.up, out hit, 1.5f))
+            {
+                
+                Debug.Log("Did Hit");
+
+                PlayerController obj = hit.transform.GetComponent<PlayerController>();
+                if (obj != null)
+                {
+                    Debug.Log("killed " + obj.name);
+                }
+            }
         }
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
@@ -323,7 +337,7 @@ public class MonsterController : MonoBehaviour
         // Does the ray intersect any objects excluding the player layer
         if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
+            //Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             //Debug.Log("Did Hit");
             if (hit.transform.tag == "Interactive")
             {
