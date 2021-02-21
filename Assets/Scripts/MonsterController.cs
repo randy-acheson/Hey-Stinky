@@ -312,11 +312,12 @@ public class MonsterController : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.E)){
             animator.SetTrigger("attack");
             RaycastHit hit;
+            Debug.DrawRay(camera.transform.position, camera.transform.up, Color.red, 1.5f);
             // Does the ray intersect any objects excluding the player layer
-            if (Physics.Raycast(transform.position, transform.forward, out hit, 1.5f))
+            if (Physics.Raycast(camera.transform.position, camera.transform.up, out hit, 1.5f))
             {
-                Debug.DrawRay(transform.position, transform.forward, Color.red, 1.5f);
-                //Debug.Log("Did Hit");
+                
+                Debug.Log("Did Hit");
 
                 PlayerController obj = hit.transform.GetComponent<PlayerController>();
                 if (obj != null)
