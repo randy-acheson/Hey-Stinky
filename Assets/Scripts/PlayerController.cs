@@ -158,7 +158,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         lock (__lockObj) {
-            Debug.Log(to_add.Count);
+            // Debug.Log(to_add.Count);
             foreach (var msg in to_add) {
                 process_thing(msg);
             }
