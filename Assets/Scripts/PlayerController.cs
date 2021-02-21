@@ -12,8 +12,6 @@ using System.Net;
 using System.Threading;
 using System.ServiceModel;
 
-using CommandEvaluator.CommandEvaluators;
-
 public class PlayerController : MonoBehaviour
 {
     public GameObject playerPrefabNoCodeReal;
@@ -121,7 +119,9 @@ public class PlayerController : MonoBehaviour
 
     private void process_tcp_messege(String msg) {
         try {
-            
+            Dictionary<string, string> argDict = stringmuncher(msg);
+            DictCommandEvaluator dcm = new DictCommandEvaluator();
+            dcm.eval(argDict["function"], new object[] {argDict});
         }
         catch (Exception e) {
             Debug.Log(e);
@@ -336,7 +336,12 @@ public class PlayerController : MonoBehaviour
             }else{
                 sendPacket[5] = 0f;
             }
-            hand.gameObject.SetAct`ive(!hand.gameObject.activeSelf);
+            hand.gameObject.SetActive(!hand.gameObject.activeSelf);
+            Dictionary<string, string> tcpFlashlightCommand = new Dictionary<string, string>();
+            tcpFlashlightCommand["function"] = "toggleFlashlight";
+            tcpFlashlightCommand["playerHash"] = player_hash;
+            tcpFlashlightCommand["isLightOn"] = hand.gameObject.activeSelf.ToString();
+            AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpFlashlightCommand));
         }
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);

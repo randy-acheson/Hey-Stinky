@@ -53,7 +53,7 @@ public class ClientConnection : MonoBehaviour {
         Debug.Log("started first listen");
     }
 
-    public String dictmuncher(Dictionary<String, String> dict) {
+    public static String dictmuncher(Dictionary<String, String> dict) {
         List<String> to_join = new List<String>(); 
         foreach(KeyValuePair<String, String> entry in dict) {
             to_join.Add(entry.Key + ":" + entry.Value);
@@ -131,6 +131,8 @@ public class AsyncTCPClient {
 
     private static StateObject state = new StateObject();
 
+    private static PlayerController parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
+
     public static void StartClient() {
         Socket s_tcp = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         IPEndPoint serverEP = new IPEndPoint(IPAddress.Parse(SERVER_ADDR), PORT);
@@ -171,10 +173,9 @@ public class AsyncTCPClient {
 
         if (bytesRead > 0) {
             string incoming_data = Encoding.ASCII.GetString(state.buffer,0,bytesRead).ToString();
-            
             Debug.Log($"Received From Server: {incoming_data}");
             lock (parent_guy_script.tcp_lock) {
-                parent_guy_script.tcp_strings_to_process.Add(receiveString);
+                parent_guy_script.tcp_strings_to_process.Add(incoming_data);
             }
 
             s_tcp.BeginReceive(state.buffer,0,StateObject.BufferSize,0,
