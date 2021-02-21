@@ -64,6 +64,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         } else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
         }
+        Debug.Log("hit: " + hit.normal.y + ", grounded: " + isGrounded + ", vel: " + velY);
     }
 
     private void FixedUpdate()
@@ -109,7 +110,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
             UnityEditor.EditorApplication.isPlaying = false; 
         }
 
-        if(!Physics.CheckSphere(transform.position + (transform.up * 0.1), 0.13f)){
+        if(!Physics.CheckSphere(transform.position, 0.1f)){
             isGrounded = false;
         }
 
@@ -140,6 +141,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         }else{
             velY += gravity * Time.deltaTime;
         }
+        Debug.Log("grounded: " + isGrounded + ", vel: " + velY);
 
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         float posZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
