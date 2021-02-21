@@ -953,6 +953,14 @@ PrefabInstance:
       propertyPath: m_Radius
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 4287358143091489867, guid: a567c6ad5af384b429b8456fec59c008, type: 3}
+      propertyPath: m_Center.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4287358143091489867, guid: a567c6ad5af384b429b8456fec59c008, type: 3}
+      propertyPath: m_Height
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4287358143091522399, guid: a567c6ad5af384b429b8456fec59c008, type: 3}
       propertyPath: m_Name
       value: crawler

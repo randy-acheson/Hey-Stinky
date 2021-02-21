@@ -26,6 +26,7 @@ public class MonsterController : MonoBehaviour
     private float rotX = 0;
     private float movement = 0f;
     private bool isGrounded = true;
+    private bool isWalled = false;
     private GameObject crystal;
 
     private Animator animator;
@@ -57,7 +58,15 @@ public class MonsterController : MonoBehaviour
     {
         if(hit.normal.y > 0.5){
             isGrounded = true;
-        }else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
+            gravity = -9.81f;
+        }
+        else if (Mathf.Abs(hit.normal.x) > 0.5 || Mathf.Abs(hit.normal.z) > 0.5) {
+            isWalled = true;
+            transform.Rotate(90f * hit.normal);
+            //transform.rotation.eulerAngles.Set(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, -90f);
+            gravity = 0;
+        }
+        else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
         }
     }
