@@ -67,9 +67,11 @@ public class ClientConnection : MonoBehaviour {
             tryLoadCreatureScripts();
 
             if (monster_controller_script != null) {
+                Debug.Log("Assigning current creature to crawler");
                 current_creature_script = monster_controller_script;
             }
             else if (player_controller_script != null) {
+                Debug.Log("Assigning current creature to player");
                 current_creature_script = player_controller_script;
             }
             else {
@@ -121,7 +123,6 @@ public class ClientConnection : MonoBehaviour {
                     Debug.Log("player is null");
                     UnityEditor.EditorApplication.isPlaying = false;
                 }
-                player_controller_script = null;
 
                 Destroy(player);
                 GameObject new_monster = Instantiate(crawlerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
@@ -133,12 +134,13 @@ public class ClientConnection : MonoBehaviour {
                     Debug.Log("monster is null");
                     UnityEditor.EditorApplication.isPlaying = false;
                 }
-                monster_controller_script = null;
 
                 Destroy(monster);
                 GameObject new_player = Instantiate(playerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
                 new_player.name = "playerPrefab";
             }
+            monster_controller_script = null;
+            player_controller_script = null;
             current_creature_script = null;
             assignCreatureIfNull();
         }
