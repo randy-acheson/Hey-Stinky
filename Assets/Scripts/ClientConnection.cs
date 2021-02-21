@@ -82,8 +82,10 @@ public class ClientConnection : MonoBehaviour {
     public void tryLoadCreatureScripts() {
         try {
             GameObject player = GameObject.Find("playerPrefab");
-            player_controller_script = player.GetComponent<PlayerController>();
-            Debug.Log("found this while looking for player controller script: " + player_controller_script.ToString());
+            if (player != null) {
+                player_controller_script = player.GetComponent<PlayerController>();
+                Debug.Log("found this while looking for player controller script: " + player_controller_script.ToString());
+            }
         }
         catch (Exception e) {
             Debug.Log(e);
@@ -92,8 +94,10 @@ public class ClientConnection : MonoBehaviour {
 
         try {
             GameObject crawler = GameObject.Find("crawlerPrefab");
-            monster_controller_script = crawler.GetComponent<MonsterController>();
-            Debug.Log("found this while looking for monster controller script: " + monster_controller_script.ToString());
+            if (crawler != null) {
+                monster_controller_script = crawler.GetComponent<MonsterController>();
+                Debug.Log("found this while looking for monster controller script: " + monster_controller_script.ToString());
+            }
         }
         catch (Exception e) {
             Debug.Log(e);
