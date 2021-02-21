@@ -1037,11 +1037,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0075710fe05b1b42af9dd6c9e169bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerPrefabNoCodeReal: {fileID: 3506661140012841385, guid: d5a8a16e148beef4d9efaf9db6bb7013, type: 3}
   speed: 8
   gravity: -9.81
   bounce: 0.04
-  mouseSensitivity: 0.1
+  mouseSensitivity: 400
   player_hash: 
+  to_add: []
 --- !u!1 &811028250
 GameObject:
   m_ObjectHideFlags: 0

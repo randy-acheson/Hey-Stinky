@@ -170,6 +170,7 @@ public class PlayerController : MonoBehaviour
 
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
         RaycastHit hit;
+        string newUIText = "";
         // Does the ray intersect any objects excluding the player layer
         //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
@@ -181,29 +182,24 @@ public class PlayerController : MonoBehaviour
                 //Debug.Log("hit "+hit.transform.name);
                 if (isClicking)
                 {
-                    uiText.text = "";
                     obj.OnPlayerInteract(gameObject, 0);
                 }
                 else
                 {
-                    uiText.text = obj.getHoverMessage();
+                    newUIText = obj.getHoverMessage();
                 }
-            }
-            else if (uiText != null)
-            {
-                uiText.text = "";
             }
         }
         else
         {
-            if (uiText != null)
-            {
-                uiText.text = "";
-            }
             Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
             //Debug.Log("Did not Hit");
         }
         isClicking = false;
+        if (uiText != null)
+        {
+            uiText.text = newUIText;
+        }
     }
 
     void Update()
