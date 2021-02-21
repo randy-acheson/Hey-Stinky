@@ -14,7 +14,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
     public float bounce = 0.04f;
     public float mouseSensitivity = 0.1f;
 
-    public GameObject headBone;
+    public Transform headBone;
     
     private float maxSpeed;
 
@@ -47,8 +47,8 @@ public class MonsterController : MonoBehaviour, CreatureBase
     void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
-        headBone = gameObject.transform.Find("Armature/Bone/Bone.003/Bone.004/Bone.005/Bone.006/HeadObject").gameObject;
-        camera = headBone.transform;
+        headBone = gameObject.transform.Find("Armature/Bone/Bone.003/Bone.004/Bone.005/Bone.006/Bone.007").gameObject.transform;
+        camera = transform.Find("HeadObject");
         body = transform.Find("crawler_low");
         //hand = camera.GetChild(0);
         player_hash = generatePlayerHash();
@@ -56,7 +56,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
         Cursor.lockState = CursorLockMode.Locked;
 
-        headBone = gameObject.transform.Find("Armature/Bone/Bone.003/Bone.004/Bone.005/Bone.006/HeadObject").gameObject;
+        //headBone = gameObject.transform.Find("Armature/Bone/Bone.003/Bone.004/Bone.005/Bone.006/HeadObject").gameObject;
 
         animator = GetComponent<Animator>();
         maxSpeed = speed;
@@ -91,7 +91,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
 //            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
             if (obj != null)
             {
-                Debug.Log("hit "+hit.transform.name);
+                //Debug.Log("hit "+hit.transform.name);
                 if (isClicking)
                 {
                     obj.OnPlayerInteract(gameObject, 0);
@@ -103,7 +103,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
             }
             else if (hit.transform.CompareTag("House") && isClicking && hit.distance < 2)
             {
-                Debug.Log("Walling");
+                //Debug.Log("Walling");
                 wallClicked = true;
                 wallNormal = hit.normal;
                 hitVector = hit.point;
@@ -162,6 +162,12 @@ public class MonsterController : MonoBehaviour, CreatureBase
                 velY = 4;
                 isGrounded = false;
                 animator.SetTrigger("jump");
+                Dictionary<string, string> tcpJumpCommand = new Dictionary<string, string>();
+                tcpJumpCommand["function"] = "monsterAction";
+                tcpJumpCommand["action"] = "jump";
+                tcpJumpCommand["playerHash"] = player_hash;
+                tcpJumpCommand["playerHit"] = "";
+                AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpJumpCommand));
             }
             else{
                 velY = 0;
@@ -169,7 +175,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
         }else{
             if (Input.GetKeyDown(KeyCode.Space) || wallLeft)
             {
-                Debug.Log("jumping off wall");
+                //Debug.Log("jumping off wall");
                 gravity = -9.81f;
                 isWalled = false;
                 Vector3 newForward = transform.position;
@@ -201,19 +207,30 @@ public class MonsterController : MonoBehaviour, CreatureBase
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         float posZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
 
+        int newAnimatorState;
         if (Mathf.Abs(controller.velocity.x) > 0 || Mathf.Abs(controller.velocity.z) > 0)
         {
             if (speed > 2.5) {
-                animator.SetInteger("movementState", 2);
+                newAnimatorState = 2;
             }
             else
             {
-                animator.SetInteger("movementState", 1);
+                newAnimatorState = 1;
             }
         }
         else
         {
-            animator.SetInteger("movementState", 0);
+            newAnimatorState = 0;
+        }
+        if (animator.GetInteger("movementState") != newAnimatorState)
+        {
+            animator.SetInteger("movementState", newAnimatorState);
+            Dictionary<string, string> tcpMoveCommand = new Dictionary<string, string>();
+            tcpMoveCommand["function"] = "monsterAction";
+            tcpMoveCommand["movementState"] = newAnimatorState.ToString();
+            tcpMoveCommand["playerHash"] = player_hash;
+            tcpMoveCommand["playerHit"] = "";
+            AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpMoveCommand));
         }
 
         if(isGrounded && (posX !=0 || posZ != 0))
@@ -246,10 +263,6 @@ public class MonsterController : MonoBehaviour, CreatureBase
         
         controller.Move(transform.forward * posX - transform.right * posZ + transform.up * posY);
 
-        sendPacket[0] = transform.position.x;
-        sendPacket[1] = transform.position.y;
-        sendPacket[2] = transform.position.z;
-
         /////////////////////////////////
 
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
@@ -258,11 +271,9 @@ public class MonsterController : MonoBehaviour, CreatureBase
         rotX -= mouseY;
         rotX = Mathf.Clamp(rotX, -85f, 85f);
 
-        camera.localRotation = Quaternion.Euler(rotX, 0f, 0f);
+        camera.localRotation = Quaternion.Euler(0f, 0f, -1f * rotX);
+        //headBone.localRotation = Quaternion.Euler(rotX, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
-
-        sendPacket[3] = camera.localRotation.x;
-        sendPacket[4] = transform.rotation.y;
 
         /////////////////////////////////
     
@@ -272,6 +283,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
         if(Input.GetKeyDown(KeyCode.E)){
             animator.SetTrigger("attack");
+            string playerHit = "";
             RaycastHit hit;
             Debug.DrawRay(camera.transform.position, camera.transform.up, Color.red, 1.5f);
             // Does the ray intersect any objects excluding the player layer
@@ -280,12 +292,29 @@ public class MonsterController : MonoBehaviour, CreatureBase
                 
                 Debug.Log("Did Hit");
 
-                PlayerController obj = hit.transform.GetComponent<PlayerController>();
-                if (obj != null)
+                //PlayerController obj = hit.transform.GetComponent<PlayerController>();
+                if(hit.transform.Find("Head/Hand/Flashlight") != null)
+                //if (obj != null)
                 {
-                    Debug.Log("killed " + obj.name);
+                    
+                    ClientConnection client = GameObject.FindObjectOfType<ClientConnection>();
+                    foreach (string key in client.player_holder.Keys) {
+                        if (client.player_holder[key].Item1 == hit.transform.gameObject)
+                        {
+                            playerHit = key;
+                            break;
+                        }
+                    }
+                    Debug.Log("killed " + playerHit);
                 }
             }
+
+            Dictionary<string, string> tcpAttackCommand = new Dictionary<string, string>();
+            tcpAttackCommand["function"] = "monsterAction";
+            tcpAttackCommand["action"] = "attack";
+            tcpAttackCommand["playerHash"] = player_hash;
+            tcpAttackCommand["playerHit"] = playerHit;
+            AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpAttackCommand));
         }
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);

@@ -281,14 +281,20 @@ public class AsyncTCPClient {
         
         bool connected = false;
         int attempt_no = 1;
-        int attempt_limit = 6;
+        int attempt_limit = 4;
         while (!connected)
         {
             if (attempt_no < attempt_limit) {
                 Debug.Log($"Attempting to reach server... {attempt_no} of {attempt_limit}");
                 connected = connectDone.WaitOne(new TimeSpan(0, 0, 5));
+                attempt_no++;
             } else {
                 throw new Exception("Terminal Error: Could not reach server.");
+                #if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying = false;
+                #else
+                    Application.Quit();
+                #endif
             }
         }
 

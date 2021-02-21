@@ -35,6 +35,45 @@ public class DictCommandEvaluator {
         }
     }
 
+    public void monsterAction(Dictionary<string, string> args)
+    {
+        try
+        {
+            GameObject player = client_connection_script.GetPlayer(args["playerHash"]);
+            if (player != parent_guy_script.gameObject)
+            {
+                Animator target_animator = player.GetComponent<Animator>();
+                if(args.ContainsKey("action"))
+                {
+                    target_animator.SetTrigger(args["action"]);
+                }
+                else if (args.ContainsKey("movementState"))
+                {
+                    target_animator.SetInteger("movementState", int.Parse(args["movementState"]));
+                }
+            }
+
+            string hitName = args["playerHit"];
+            if (hitName != "")
+            {
+                GameObject playerHit = client_connection_script.GetPlayer(hitName);
+                if (playerHit == parent_guy_script)
+                {
+                    playerHit.GetComponent<PlayerController>().Die();
+                }
+                else
+                {
+                    playerHit.SetActive(false);
+                }
+            }
+            
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e);
+        }
+    }
+
     public void selectCharacter(Dictionary<string,string> args)
     {
         try

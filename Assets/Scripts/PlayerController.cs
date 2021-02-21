@@ -24,6 +24,8 @@ public class PlayerController : MonoBehaviour, CreatureBase
     public float mouseSensitivity = 400f;
     public float flashlightIntensity = 3.5f;
     public string character;
+
+    private bool isDead;
     
     private Transform body;
     private Transform camera;
@@ -314,5 +316,12 @@ public class PlayerController : MonoBehaviour, CreatureBase
 
     public void hideInCloset(GameObject closet) {
         transform.position = closet.transform.position;
+    }
+
+    public void Die()
+    {
+        Debug.Log("You died");
+        isDead = true;
+        body.GetComponent<MeshRenderer>().enabled = false; 
     }
 }
