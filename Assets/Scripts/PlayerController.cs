@@ -125,19 +125,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public Dictionary<String, String> stringmuncher(String string_to_munch) {
+        Dictionary<String, String> dict = new Dictionary<String, String>();
+        
+        List<String> stuff2 = new List<String>(string_to_munch.Split(','));
+        foreach (var something in stuff2) {
+            Tuple<String, String> KeyValPair = GetKeyVal(something);
+            String key = KeyValPair.Item1;
+            String val = KeyValPair.Item2;
+
+            dict[key] = val;
+        }
+        return dict;
+    }
+
+
     private void process_udp_messege(String msg) {
         try {
             GameObject remotePlayer = null;
-            List<String> stuff2 = new List<String>(msg.Split(','));
-
-            Dictionary<String, String> all_dict = new Dictionary<String, String>();
-            foreach (var something in stuff2) {
-                Tuple<String, String> KeyValPair = GetKeyVal(something);
-                String key = KeyValPair.Item1;
-                String val = KeyValPair.Item2;
-
-                all_dict[key] = val;
-            }
+            Dictionary<String, String> all_dict = stringmuncher(msg);
 
             if (all_dict["player_hash"] == player_hash) {
                 return;
