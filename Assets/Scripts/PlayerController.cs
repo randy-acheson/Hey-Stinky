@@ -15,6 +15,7 @@ using System.ServiceModel;
 public class PlayerController : MonoBehaviour
 {
     public GameObject playerPrefabNoCodeReal;
+    public AudioSource audioData;
 
     public float speed = 8f;
     public float gravity = -9.81f;
@@ -382,6 +383,7 @@ public class PlayerController : MonoBehaviour
         else if (other.gameObject.CompareTag("Goal"))
         {
             Debug.Log("You win!");
+            audioData.Play(0);
         }
     }
 
