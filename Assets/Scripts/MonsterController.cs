@@ -39,7 +39,8 @@ public class MonsterController : MonoBehaviour, CreatureBase
     private Vector3 wallNormal;
     private Vector3 hitVector;
 
-    private string player_hash;
+    private String player_hash;
+    public Int32 rSeed;
 
     private float[] sendPacket = new float[6];
     
@@ -351,6 +352,12 @@ public class MonsterController : MonoBehaviour, CreatureBase
     }
     private void OnTriggerEnter(Collider other)
     {
+        System.Random r = new System.Random();
+        Int32 seed = (Int32) r.Next();
+        Dictionary<string, string> seedCrystalArgs = new Dictionary<string, string>();
+        seedCrystalArgs["function"] = "seedCrystal";
+        seedCrystalArgs["seed"] = seed.ToString();
+        AsyncTCPClient.Send(ClientConnection.dictmuncher(seedCrystalArgs));
         if (other.gameObject.CompareTag("Crystal") && crystal == null)
         {
             if (!other.gameObject.GetComponent<CrystalController>().isDeposited)
