@@ -46,6 +46,12 @@ public class ClientConnection : MonoBehaviour {
         Debug.Log(parent_guy_script);
         parent_guy_script = GameObject.FindObjectOfType<PlayerController>();
         Debug.Log(parent_guy_script);
+
+        UdpState state = new UdpState();
+        state.ip = RemoteIpEndPoint;
+        state.client = receiveClient;
+        receiveClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
+        Debug.Log("started first listen");
     }
 
     void Update() {
@@ -54,17 +60,17 @@ public class ClientConnection : MonoBehaviour {
             // send player stuff
             String ok = parent_guy_script.getPositionDict();
             sendMessege(ok);
-            next_update = DateTime.Now + TimeSpan.FromSeconds(.2);
+            next_update = DateTime.Now + TimeSpan.FromSeconds(.01);
 
-            // recieve player stuff
-            if (messageReceived == true) {
-                UdpState state = new UdpState();
-                state.ip = RemoteIpEndPoint;
-                state.client = receiveClient;
-                receiveClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
-                messageReceived = false;
-                // next_update = DateTime.Now + TimeSpan.FromSeconds(.1);
-            }
+            // // recieve player stuff
+            // if (messageReceived == true) {
+            //     UdpState state = new UdpState();
+            //     state.ip = RemoteIpEndPoint;
+            //     state.client = receiveClient;
+            //     receiveClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
+            //     messageReceived = false;
+            //     // next_update = DateTime.Now + TimeSpan.FromSeconds(.1);
+            // }
         }
     }
 
@@ -86,7 +92,11 @@ public class ClientConnection : MonoBehaviour {
         lock (parent_guy_script.__lockObj) {
             parent_guy_script.to_add.Add(receiveString);
         }
-        messageReceived = true;
+
+        UdpState state = new UdpState();
+        state.ip = RemoteIpEndPoint;
+        state.client = receiveClient;
+        receiveClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
     }
 
 

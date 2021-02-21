@@ -141,6 +141,8 @@ public class PlayerController : MonoBehaviour
 
             if (remotePlayer != null) {
                 remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
+                remotePlayer.transform.rotation = Quaternion.Euler(remotePlayer.transform.rotation.x, float.Parse(all_dict["body_rotY"]), remotePlayer.transform.rotation.z);
+                remotePlayer.transform.GetChild(0).rotation = Quaternion.Euler(float.Parse(all_dict["head_rotX"]), remotePlayer.transform.rotation.y, remotePlayer.transform.rotation.z);
                 // else if (key == "body_rotY") {
                 // else if (key == "body_rotZ") {
                 // else if (key == "head_rotX") {
@@ -158,10 +160,12 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         lock (__lockObj) {
+            // Debug.Log(to_add.Count);
             foreach (var msg in to_add) {
                 process_thing(msg);
             }
             to_add = new List<String>();
+            // Debug.Log(to_add.Count);
         }
 
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
