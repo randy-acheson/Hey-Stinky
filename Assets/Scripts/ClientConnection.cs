@@ -360,8 +360,15 @@ public class ClientConnection : MonoBehaviour {
             }
 
             if (remotePlayer != null) {
+                if(all_dict.ContainsKey("body_rotZ") && all_dict.ContainsKey("body_rotX"))
+                {
+                    remotePlayer.transform.rotation = Quaternion.Euler(0, float.Parse(all_dict["body_rotY"]), 0);
+                }
+                else
+                {
+                    remotePlayer.transform.rotation = Quaternion.Euler(float.Parse(all_dict["body_rotX"]), float.Parse(all_dict["body_rotY"]), float.Parse(all_dict["body_rotZ"]));
+                }
                 remotePlayer.transform.position = new Vector3(float.Parse(all_dict["body_posX"]), float.Parse(all_dict["body_posY"]), float.Parse(all_dict["body_posZ"]));
-                remotePlayer.transform.rotation = Quaternion.Euler(0, float.Parse(all_dict["body_rotY"]), 0);
                 remotePlayer.transform.GetChild(0).localRotation = Quaternion.Euler(float.Parse(all_dict["head_rotX"]), 0, 0);
             }
         }
