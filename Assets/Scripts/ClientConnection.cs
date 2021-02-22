@@ -8,12 +8,10 @@ using System.Threading;
 using System.ServiceModel;
 using System.Collections.Generic;
 
-
 public class UdpState {
     public UdpClient client;
     public IPEndPoint ip;
 }
-
 
 public class ClientConnection : MonoBehaviour {
 
@@ -33,14 +31,15 @@ public class ClientConnection : MonoBehaviour {
 
     IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-    public Int32 rSeed;
-
-
+    public int rSeed = -1;
 
     public object udp_lock = new object();
     public object tcp_lock = new object();
     public List<String> udp_strings_to_process = new List<String>();
     public List<String> tcp_strings_to_process = new List<String>();
+    
+    private bool gameStarted = false;
+    public string character;
 
     public Dictionary<String, Tuple<GameObject, DateTime>> player_holder = new Dictionary<String, Tuple<GameObject, DateTime>>();
 
@@ -124,7 +123,12 @@ public class ClientConnection : MonoBehaviour {
             next_update = DateTime.Now + TimeSpan.FromSeconds(.01);
         }
 
-        if(Input.GetKeyDown(KeyCode.P)){
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            GameStartInitiate("Monster");
+        }
+
+        if (Input.GetKeyDown(KeyCode.P)){
             if (monster_controller_script == null) {
                 GameObject player = GameObject.Find("playerPrefab");
                 if (player == null) {
@@ -162,6 +166,41 @@ public class ClientConnection : MonoBehaviour {
             assignCreatureIfNull();
         }
 
+        if (gameStarted && rSeed >= 0)
+        {
+            StartGame();
+        }
+    }
+
+    public void GameStartInitiate(string character)
+    {
+        this.character = character;
+        Debug.Log("You are " + character);
+
+        if (character == "Monster")
+        {
+            System.Random r = new System.Random();
+            var seed = r.Next();
+            Dictionary<string, string> seedRngArgs = new Dictionary<string, string>
+            {
+                ["function"] = "seedRng",
+                ["seed"] = seed.ToString()
+            };
+            AsyncTCPClient.Send(dictmuncher(seedRngArgs));
+        }
+
+        gameStarted = true;
+    }
+
+    private void StartGame()
+    {
+        var newPos = GameObject.Find("PlayerSpawns")
+            .GetComponent<PlayerSpawnsController>().GetSpawn(rSeed);
+
+        current_creature_script.getGameObject().GetComponent<CharacterController>()
+            .Move(newPos - current_creature_script.getGameObject().transform.position);
+
+        FindObjectOfType<CrystalSpawnController>().SpawnCrystals(rSeed);
     }
 
     public void GenerateRemotePlayerStoreInDict(String username, String prefabname) {

@@ -277,7 +277,8 @@ public class MonsterController : MonoBehaviour, CreatureBase
         {
             newAnimatorState = 0;
         }
-        if (animator.GetInteger("movementState") != newAnimatorState)
+        animator.SetInteger("movementState", newAnimatorState);
+        /*if (animator.GetInteger("movementState") != newAnimatorState)
         {
             animator.SetInteger("movementState", newAnimatorState);
             Dictionary<string, string> tcpMoveCommand = new Dictionary<string, string>();
@@ -286,9 +287,9 @@ public class MonsterController : MonoBehaviour, CreatureBase
             tcpMoveCommand["playerHash"] = player_hash;
             tcpMoveCommand["playerHit"] = "";
             AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpMoveCommand));
-        }
+        }*/
 
-        if(isGrounded && (posX !=0 || posZ != 0))
+        if (isGrounded && (posX !=0 || posZ != 0))
         {
             movement = (movement + 1.5f * Mathf.Max(Mathf.Abs(posX), Mathf.Abs(posZ))) % (Mathf.PI*2f);
         }
@@ -372,13 +373,23 @@ public class MonsterController : MonoBehaviour, CreatureBase
     }
     private void OnTriggerEnter(Collider other)
     {
-        System.Random r = new System.Random();
-        Int32 seed = (Int32) r.Next();
-        Dictionary<string, string> seedRngArgs = new Dictionary<string, string>();
-        seedRngArgs["function"] = "seedRng";
-        seedRngArgs["seed"] = seed.ToString();
-        AsyncTCPClient.Send(ClientConnection.dictmuncher(seedRngArgs));
-        
+        if (other.gameObject.CompareTag("Crystal") && crystal == null)
+        {
+            if (!other.gameObject.GetComponent<CrystalController>().isDeposited)
+            {
+                crystal = other.gameObject;
+                other.gameObject.GetComponent<CrystalController>()
+                    .SetTransformParent(gameObject.transform);
+                gameObject.transform.position = new Vector3(10, 10, 10);
+            }
+        }
+        else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
+        {
+            crystal.GetComponent<CrystalController>()
+                .SetTransformParent(other.gameObject.transform);
+            crystal.GetComponent<CrystalController>().isDeposited = true;
+            crystal = null;
+        }
     }
 
     public String get_player_hash() {
