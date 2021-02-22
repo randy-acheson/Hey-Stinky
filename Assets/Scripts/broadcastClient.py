@@ -2,7 +2,7 @@
 import socket
 import threading
 
-HOST_ADDR = "192.168.86.46"
+HOST_ADDR = "192.168.86.61"
 TCP_PORT = 7777
 
 def createServerConnections():

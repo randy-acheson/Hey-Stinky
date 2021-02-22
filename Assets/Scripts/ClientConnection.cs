@@ -67,9 +67,11 @@ public class ClientConnection : MonoBehaviour {
             tryLoadCreatureScripts();
 
             if (monster_controller_script != null) {
+                Debug.Log("Assigning current creature to crawler");
                 current_creature_script = monster_controller_script;
             }
             else if (player_controller_script != null) {
+                Debug.Log("Assigning current creature to player");
                 current_creature_script = player_controller_script;
             }
             else {
@@ -81,7 +83,11 @@ public class ClientConnection : MonoBehaviour {
 
     public void tryLoadCreatureScripts() {
         try {
-            player_controller_script = GameObject.FindObjectOfType<PlayerController>();
+            GameObject player = GameObject.Find("playerPrefab");
+            if (player != null) {
+                player_controller_script = player.GetComponent<PlayerController>();
+                Debug.Log("found this while looking for player controller script: " + player_controller_script.ToString());
+            }
         }
         catch (Exception e) {
             Debug.Log(e);
@@ -89,7 +95,11 @@ public class ClientConnection : MonoBehaviour {
         }
 
         try {
-            monster_controller_script = GameObject.FindObjectOfType<MonsterController>();
+            GameObject crawler = GameObject.Find("crawlerPrefab");
+            if (crawler != null) {
+                monster_controller_script = crawler.GetComponent<MonsterController>();
+                Debug.Log("found this while looking for monster controller script: " + monster_controller_script.ToString());
+            }
         }
         catch (Exception e) {
             Debug.Log(e);
@@ -117,52 +127,73 @@ public class ClientConnection : MonoBehaviour {
         if(Input.GetKeyDown(KeyCode.P)){
             if (monster_controller_script == null) {
                 GameObject player = GameObject.Find("playerPrefab");
+                if (player == null) {
+                    Debug.Log("player is null");
+                    UnityEditor.EditorApplication.isPlaying = false;
+                }
+
+                Vector3 old_position = player.transform.position;
+
+                DestroyImmediate(player);
+                DestroyImmediate(player_controller_script);
                 player_controller_script = null;
 
-                Destroy(player);
-                GameObject new_monster = Instantiate(crawlerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+                GameObject new_monster = Instantiate(crawlerWithCode, old_position, Quaternion.identity);
+                new_monster.name = "crawlerPrefab";
             }
             else if (player_controller_script == null) {
-                GameObject monster = GameObject.Find("playerPrefab");
+                GameObject monster = GameObject.Find("crawlerPrefab");
+                if (monster == null) {
+                    Debug.Log("monster is null");
+                    UnityEditor.EditorApplication.isPlaying = false;
+                }
+
+                Vector3 old_position = monster.transform.position;
+
+                DestroyImmediate(monster);
+                DestroyImmediate(monster_controller_script);
                 monster_controller_script = null;
 
-                Destroy(monster);
-                GameObject new_monster = Instantiate(playerWithCode, new Vector3(0, 1, 0), Quaternion.identity);
+                GameObject new_player = Instantiate(playerWithCode, old_position, Quaternion.identity);
+                new_player.name = "playerPrefab";
             }
+
             current_creature_script = null;
             assignCreatureIfNull();
         }
 
     }
 
-    public GameObject GetRemotePlayer(String username, String prefabname="default_lmao") {
+    public void GenerateRemotePlayerStoreInDict(String username, String prefabname) {
+        Debug.Log("instantiating multiplayer entity named: " + username);
+        GameObject new_guy = null;
+        try {
+            if (prefabname == "playerPrefab") {
+                new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+            else if (prefabname == "crawler") {
+                new_guy = Instantiate(crawler, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+            else {
+                Debug.Log("WARNING COULD NOT FIND THE PLAYERPREFAB: " + prefabname);
+                new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+            Debug.Log("instantiated player: " + username);
+            player_holder[username] = new Tuple<GameObject, DateTime>(new_guy, DateTime.Now + TimeSpan.FromSeconds(3));
+            Debug.Log(player_holder[username].Item1);
+        }
+        catch (Exception e) {
+            Debug.Log(e);
+            Application.Quit();
+        }
+    }
+
+    public GameObject GetRemotePlayer(String username) {
         if (username == current_creature_script.get_player_hash()) {
             return null;
         }
 
         if (!player_holder.ContainsKey(username)) {
-            Debug.Log("instantiating multiplayer entity named: " + username);
-            GameObject new_guy = null;
-            try {
-                if (prefabname == "playerPrefab") {
-                    new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
-                }
-                else if (prefabname == "crawler") {
-                    new_guy = Instantiate(crawler, new Vector3(0, 0, 0), Quaternion.identity);
-                }
-                else {
-                    Debug.Log("WARNING COULD NOT FIND THE PLAYERPREFAB: " + prefabname);
-                    new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
-                }
-                Debug.Log("instantiated player: " + username);
-                player_holder[username] = new Tuple<GameObject, DateTime>(new_guy, DateTime.Now + TimeSpan.FromSeconds(3));
-                Debug.Log(player_holder[username].Item1);
-                return new_guy;            
-            }
-            catch (Exception e) {
-                Debug.Log(e);
-                Application.Quit();
-            }
             return null;
         }
         else {
@@ -190,7 +221,7 @@ public class ClientConnection : MonoBehaviour {
 
             foreach (var name in to_die) {
                 Debug.Log("REMOVING: " + name);
-                Destroy(player_holder[name].Item1);
+                DestroyImmediate(player_holder[name].Item1);
                 player_holder.Remove(name);
             }
         }
@@ -273,11 +304,15 @@ public class ClientConnection : MonoBehaviour {
                 return;
             }
 
-            if (all_dict.ContainsKey("prefab_name")) {
-                remotePlayer = GetRemotePlayer(all_dict["player_hash"], all_dict["prefab_name"]);
-            }
-            else {
+            remotePlayer = GetRemotePlayer(all_dict["player_hash"]);
+            if (remotePlayer == null) {
+                GenerateRemotePlayerStoreInDict(all_dict["player_hash"], all_dict["prefab_name"]);
                 remotePlayer = GetRemotePlayer(all_dict["player_hash"]);
+            }
+
+            if (remotePlayer == null) {
+                Debug.Log("something horrible has happened, contact andrew");
+                UnityEditor.EditorApplication.isPlaying = false;
             }
 
             if (remotePlayer != null) {
@@ -307,7 +342,7 @@ public class ClientConnection : MonoBehaviour {
 }
 
 public class AsyncTCPClient {
-    private const string SERVER_ADDR = "192.168.86.46";
+    private const string SERVER_ADDR = "192.168.86.61";
     private const int PORT = 7777;
 
     private static ManualResetEvent connectDone = 

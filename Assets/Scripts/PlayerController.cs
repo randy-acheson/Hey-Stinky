@@ -75,7 +75,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         string newUIText = "";
         // Does the ray intersect any objects excluding the player layer
         //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
-        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
+        if (!isDead && Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
         {
             //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.yellow, 5f, false);
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
@@ -111,7 +111,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
             UnityEditor.EditorApplication.isPlaying = false; 
         }
 
-        if(!Physics.CheckSphere(transform.position, 0.1f)){
+        if(!Physics.CheckSphere(transform.position, 0.1f, 1<<8)){
             isGrounded = false;
         }
 
@@ -202,11 +202,14 @@ public class PlayerController : MonoBehaviour, CreatureBase
         if(Input.GetKeyDown(KeyCode.E)){
             flashlight.enabled = !flashlight.enabled;
             hand.gameObject.SetActive(!hand.gameObject.activeSelf);
-            Dictionary<string, string> tcpFlashlightCommand = new Dictionary<string, string>();
-            tcpFlashlightCommand["function"] = "toggleFlashlight";
-            tcpFlashlightCommand["playerHash"] = player_hash;
-            tcpFlashlightCommand["isLightOn"] = hand.gameObject.activeSelf.ToString();
-            AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpFlashlightCommand));
+            if (!isDead)
+            {
+                Dictionary<string, string> tcpFlashlightCommand = new Dictionary<string, string>();
+                tcpFlashlightCommand["function"] = "toggleFlashlight";
+                tcpFlashlightCommand["playerHash"] = player_hash;
+                tcpFlashlightCommand["isLightOn"] = hand.gameObject.activeSelf.ToString();
+                AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpFlashlightCommand));
+            }
         }
 
         if(Input.GetKeyDown(KeyCode.L))
@@ -223,7 +226,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
     {
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
-        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
+        if (!isDead && Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             //Debug.Log("Did Hit");
@@ -250,21 +253,34 @@ public class PlayerController : MonoBehaviour, CreatureBase
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Receptacle") && crystal != null)
+        if (!isDead)
         {
-            other.gameObject.GetComponent<ReceptacleScript>().AddCrystal(crystal);
-            crystal = null;
-        }
-        else if (other.gameObject.CompareTag("Goal"))
-        {
-            Debug.Log("You win!");
-            audioData.Play(0);
-        }
-        else if (other.gameObject.CompareTag("CharacterSelect"))
-        {
-            GameObject.Find("CharacterSelectors")
-                .GetComponent<CharacterSelectionController>()
-                .SelectCharacter(other.gameObject, player_hash);
+            if (other.gameObject.CompareTag("Crystal") && crystal == null)
+            {
+                if (!other.gameObject.GetComponent<CrystalController>().isDeposited)
+                {
+                    crystal = other.gameObject;
+                    other.gameObject.GetComponent<CrystalController>()
+                        .SetTransformParent(gameObject.transform);
+                    gameObject.transform.position = new Vector3(10, 10, 10);
+                }
+            }
+            else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
+            {
+                other.gameObject.GetComponent<ReceptacleScript>().AddCrystal(crystal);
+                crystal = null;
+            }
+            else if (other.gameObject.CompareTag("Goal"))
+            {
+                Debug.Log("You win!");
+                audioData.Play(0);
+            }
+            else if (other.gameObject.CompareTag("CharacterSelect"))
+            {
+                GameObject.Find("CharacterSelectors")
+                    .GetComponent<CharacterSelectionController>()
+                    .SelectCharacter(other.gameObject, player_hash);
+            }
         }
     }
 
@@ -327,6 +343,10 @@ public class PlayerController : MonoBehaviour, CreatureBase
     public void Die()
     {
         Debug.Log("You died");
+        if (uiText != null)
+        {
+            uiText.text = "You died";
+        }
         isDead = true;
         body.GetComponent<MeshRenderer>().enabled = false; 
     }
