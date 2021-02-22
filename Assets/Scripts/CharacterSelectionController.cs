@@ -73,11 +73,10 @@ public class CharacterSelectionController : MonoBehaviour
             && !string.IsNullOrEmpty(characterDict["Green"]) 
             && !string.IsNullOrEmpty(characterDict["Blue"]))
         {
-            var myHash = GameObject.Find("playerPrefab")
-                .GetComponent<PlayerController>().get_player_hash();
+            var myHash = FindObjectOfType<ClientConnection>()
+                .current_creature_script.get_player_hash();
             var myCharacter = GetCharacterFromPlayerHash(myHash);
-            GameObject.Find("playerPrefab")
-                .GetComponent<PlayerController>().GameStartInitiate(myCharacter);
+            FindObjectOfType<ClientConnection>().GameStartInitiate(myCharacter);
         }
     }
 

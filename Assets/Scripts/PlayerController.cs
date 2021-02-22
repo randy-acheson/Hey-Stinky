@@ -1,17 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
 using UnityEngine;
-using UnityEditor;
 using UnityEngine.UI;
 
-using System.Net.Sockets;
 using System;
-using System.Net;
-using System.Threading;
-using System.ServiceModel;
 
 public class PlayerController : MonoBehaviour, CreatureBase
 {
@@ -23,10 +17,8 @@ public class PlayerController : MonoBehaviour, CreatureBase
     public float bounce = 0.04f;
     public float mouseSensitivity = 400f;
     public float flashlightIntensity = 3.5f;
-    public string character;
 
     private bool isDead;
-    private bool gameStarted = false;
     
     private Transform body;
     private Transform camera;
@@ -210,21 +202,11 @@ public class PlayerController : MonoBehaviour, CreatureBase
             AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpFlashlightCommand));
         }
 
-        if(Input.GetKeyDown(KeyCode.L))
-        {
-            GameStartInitiate("Monster");
-        }
-
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 
         flashlight.intensity = Mathf.Min(0.5f*flashlightIntensity + (noise*4f*flashlightIntensity), flashlightIntensity);
     
         /////////////////////
-        
-        if (gameStarted && FindObjectOfType<ClientConnection>().rSeed != null)
-        {
-            StartGame();
-        }
     }
 
     private void OnMouseDown()
@@ -288,26 +270,6 @@ public class PlayerController : MonoBehaviour, CreatureBase
                 .GetComponent<CharacterSelectionController>()
                 .DeselectCharacter(other.gameObject, player_hash);
         }
-    }
-
-    public void GameStartInitiate(string character)
-    {
-        this.character = character;
-        Debug.Log("You are " + character);
-
-        if (character == "Monster")
-        {
-            // create and send seed
-        }
-
-        gameStarted = true;
-    }
-
-    private void StartGame()
-    {
-        var newPos = GameObject.Find("PlayerSpawns")
-            .GetComponent<PlayerSpawnsController>().GetSpawn(69);
-        controller.Move(newPos - gameObject.transform.position);
     }
 
     public Dictionary<String, String> getPositionDict() {
