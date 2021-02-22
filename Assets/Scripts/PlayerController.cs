@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
             UnityEditor.EditorApplication.isPlaying = false; 
         }
 
-        if(!Physics.CheckSphere(transform.position, 0.1f, 1<<8)){
+        if(!Physics.CheckSphere(transform.position + (transform.up*0.15f), 0.2f, 1<<8)){
             isGrounded = false;
         }
 
@@ -157,7 +157,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
             movement = Mathf.Min(movement + 5f*Time.deltaTime, Mathf.PI*2f);
         }
 
-        float vertBob = Mathf.Abs(Mathf.Sin(movement + Mathf.PI*0.5f));
+        float vertBob = Mathf.Abs(Mathf.Sin(movement));
         float horiBob = Mathf.Sin(movement);
 
         float posY = velY * Time.deltaTime;

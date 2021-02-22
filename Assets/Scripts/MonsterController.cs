@@ -66,12 +66,12 @@ public class MonsterController : MonoBehaviour, CreatureBase
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         //Debug.Log("hit: " + hit.normal);
-        if(!isWalled && hit.normal.y > 0.9){
+        if(!isWalled && hit.normal.y > 0.1){
             // Debug.Log("hitting wrong thing");
 
             isGrounded = true;
-            isWalled = false;
             gravity = -9.81f;
+            velY = 0;
         }
         else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
             velY = 0;
@@ -178,7 +178,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
             UnityEditor.EditorApplication.isPlaying = false; 
         }
 
-        if(!Physics.CheckSphere(transform.position, 0.1f, 1<<8)){
+        if(!Physics.CheckSphere(transform.position + (transform.up*0.15f), 0.2f, 1<<8)){
             isGrounded = false;
         }
 
@@ -208,6 +208,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
             if(Input.GetKeyDown(KeyCode.Space)){
                 velY = 4;
                 isGrounded = false;
+                /*
                 animator.SetTrigger("jump");
                 Dictionary<string, string> tcpJumpCommand = new Dictionary<string, string>();
                 tcpJumpCommand["function"] = "monsterAction";
@@ -215,6 +216,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
                 tcpJumpCommand["playerHash"] = player_hash;
                 tcpJumpCommand["playerHit"] = "";
                 AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpJumpCommand));
+                */
             }
             else{
                 velY = 0;
@@ -236,7 +238,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
             }
             velY += gravity * Time.deltaTime;
         }
-        //Debug.Log("grounded: " + isGrounded);
+        //Debug.Log("grounded: " + isGrounded + ", vel: " + velY);
 
         if (wallClicked)
         {

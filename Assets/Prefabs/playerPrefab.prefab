@@ -310,7 +310,7 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 1.68
+  m_Height: 1.52
   m_Radius: 0.15
   m_SlopeLimit: 45
   m_StepOffset: 0.3
