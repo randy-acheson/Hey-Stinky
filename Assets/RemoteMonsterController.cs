@@ -19,7 +19,7 @@ public class RemoteMonsterController : MonoBehaviour
         if (animator != null)
         {
             float distMoved = (prevTransform - transform.position).magnitude;
-            Debug.Log("run speed: " + distMoved);
+            //Debug.Log("run speed: " + distMoved);
             if (distMoved <= 0)
             {
                 animator.SetInteger("movementState", 0);
