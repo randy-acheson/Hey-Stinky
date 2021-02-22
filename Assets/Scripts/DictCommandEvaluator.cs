@@ -72,6 +72,7 @@ public class DictCommandEvaluator {
                 GameObject playerHit = client_connection_script.GetRemotePlayer(hitName);
                 if (playerHit == null)
                 {
+                    playerHit = client_connection_script.current_creature_script.getGameObject();
                     playerHit.GetComponent<PlayerController>().Die();
                 }
                 else
