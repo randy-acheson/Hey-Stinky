@@ -166,7 +166,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         //body.transform.localRotation = Quaternion.Euler(0f, 0f, horiBob*-0.0244f);
         camera.localPosition = new Vector3(horiBob*bounce*0.5f, 1.68f+vertBob*bounce, 0f);
 
-        controller.Move(transform.right*posX + transform.forward*posZ + Vector3.up*posY);
+        controller.Move(transform.right*posX + transform.forward*posZ + transform.up*posY);
 
         /////////////////////////////////
 

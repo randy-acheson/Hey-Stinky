@@ -106,6 +106,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
                 wallClicked = true;
                 wallNormal = hit.normal;
                 hitVector = hit.point;
+                Debug.Log("hit: " + hit.point);
             }
         }
         
@@ -248,14 +249,16 @@ public class MonsterController : MonoBehaviour, CreatureBase
             //Vector3 target = transform.up - Vector3.Dot(transform.up, wallNormal) * wallNormal;
             //Debug.Log("wall normal: " + wallNormal);
             Vector3 target = camera.transform.forward - Vector3.Dot(camera.transform.forward, wallNormal) * wallNormal;
-            Debug.Log("camera: " + camera.transform.forward + ", target: " + target + ", wall: " + wallNormal);
+            //Debug.Log("camera: " + camera.transform.forward + ", target: " + target + ", wall: " + wallNormal);
             if(target.magnitude == 0){
                 target = transform.up;
             }
             transform.rotation = Quaternion.LookRotation(target.normalized, wallNormal);
-            Debug.Log("final: " + transform.forward + ", finalcam: " + camera.transform.forward);
+            //Debug.Log("final: " + transform.forward + ", finalcam: " + camera.transform.forward);
 
-            transform.position = hitVector + 0.5f * wallNormal;
+            //transform.position = hitVector;
+            controller.Move(hitVector - transform.position);
+            Debug.Log("pos: " + transform.position);
             rotX = 0;
 
             gravity = 0;
