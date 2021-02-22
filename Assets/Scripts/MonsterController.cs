@@ -83,14 +83,11 @@ public class MonsterController : MonoBehaviour, CreatureBase
         string newUIText = "";
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
-        //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
-        //Debug.DrawRay(camera.transform.position, -1*camera.transform.right, Color.yellow, 1f, false);
-        if (Physics.Raycast(camera.transform.position, -1*camera.transform.right, out hit, Mathf.Infinity))
+        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
         {
-            //Debug.DrawRay(camera.transform.position, camera.transform.up, Color.yellow, 1f, false);
             //Debug.Log(hit.collider.gameObject.GetComponent<CrystalController>());
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
-//            InteractiveObject obj = hit.transform.GetComponent<InteractiveObject>();
+
             if (obj != null)
             {
                 //Debug.Log("hit "+hit.transform.name);
@@ -123,7 +120,6 @@ public class MonsterController : MonoBehaviour, CreatureBase
         layerMask = ~layerMask;
         if (isWalled)
         {
-           // Debug.DrawRay(transform.position, -1f * transform.up, Color.blue, 0.5f);
             if (!Physics.Raycast(transform.position, -1f * transform.up, out hit2, 0.5f))
             {
                 //wallLeft = true;
@@ -136,12 +132,8 @@ public class MonsterController : MonoBehaviour, CreatureBase
             string playerHit = "";
             RaycastHit hit3;
 
-            //Debug.DrawRay(camera.transform.position, camera.transform.up, Color.green, 1.5f);
-            //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.blue, 1.5f);
-            Debug.DrawRay(camera.transform.position, -1 * camera.transform.right, Color.red, 1.5f);
             // Does the ray intersect any objects excluding the player layer
-            //if (Physics.Raycast(camera.transform.position, -1 * camera.transform.right, out hit3, Mathf.Infinity))
-            if (Physics.SphereCast(camera.transform.position, 0.5f, -1 * camera.transform.right, out hit3, 1f))
+            if (Physics.SphereCast(camera.transform.position, 0.5f, camera.transform.forward, out hit3, 1f))
             {
 
                 Debug.Log("Did Hit");
@@ -253,13 +245,16 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
             //Vector3 target = transform.up - Vector3.Dot(transform.up, wallNormal) * wallNormal;
             //Debug.Log("wall normal: " + wallNormal);
-            //Vector3 target = transform.forward - Vector3.Dot(transform.forward, wallNormal) * wallNormal;
-            Vector3 target = -1*camera.transform.right - Vector3.Dot(-1*camera.transform.right, wallNormal) * wallNormal;
-            Debug.Log("camera: " + -1 * camera.transform.right + ", target: " + target + ", wall: " + wallNormal);
+            Vector3 target = camera.transform.forward - Vector3.Dot(camera.transform.forward, wallNormal) * wallNormal;
+            Debug.Log("camera: " + camera.transform.forward + ", target: " + target + ", wall: " + wallNormal);
+            if(target.magnitude == 0){
+                target = transform.up;
+            }
             transform.rotation = Quaternion.LookRotation(target.normalized, wallNormal);
-            Debug.Log("final: " + transform.forward + ", finalcam: " + -1 * camera.transform.right);
+            Debug.Log("final: " + transform.forward + ", finalcam: " + camera.transform.forward);
 
-            transform.position = hitVector + .5f * wallNormal;
+            transform.position = hitVector + 0.5f * wallNormal;
+            rotX = 0;
 
             gravity = 0;
 
@@ -324,17 +319,17 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
         body.localPosition = new Vector3(horiBob*bounce*0.5f, 0.9f+vertBob*bounce, 0f);
         
-        controller.Move(transform.forward * posX - transform.right * posZ + transform.up * posY);
+        controller.Move(transform.forward * posZ + transform.right * posX + transform.up * posY);
 
         /////////////////////////////////
 
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = -1f * Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
         //Debug.Log("MouseX: " + Input.GetAxis("Mouse X") + ", sens: " + mouseSensitivity + ", time: " + Time.deltaTime + ", total: " + mouseX);
-        rotX -= mouseY;
+        rotX += mouseY;
         rotX = Mathf.Clamp(rotX, -85f, 85f);
 
-        camera.localRotation = Quaternion.Euler(0f, 0f, -1f * rotX);
+        camera.localRotation = Quaternion.Euler(rotX, 0f, 0f);
         //headBone.localRotation = Quaternion.Euler(rotX, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
 
@@ -356,7 +351,6 @@ public class MonsterController : MonoBehaviour, CreatureBase
         // Does the ray intersect any objects excluding the player layer
         if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         {
-            //Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             //Debug.Log("Did Hit");
             if (hit.transform.tag == "Interactive")
             {

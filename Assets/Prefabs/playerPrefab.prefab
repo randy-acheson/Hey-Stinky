@@ -336,7 +336,6 @@ MonoBehaviour:
   bounce: 0.04
   mouseSensitivity: 400
   flashlightIntensity: 3.5
-  character: 
   player_hash: 
 --- !u!1 &3506661140203787488
 GameObject:
