@@ -84,7 +84,8 @@ public class MonsterController : MonoBehaviour, CreatureBase
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
         //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
-        if (Physics.Raycast(camera.transform.position, camera.transform.up, out hit, Mathf.Infinity))
+        //Debug.DrawRay(camera.transform.position, -1*camera.transform.right, Color.yellow, 1f, false);
+        if (Physics.Raycast(camera.transform.position, -1*camera.transform.right, out hit, Mathf.Infinity))
         {
             //Debug.DrawRay(camera.transform.position, camera.transform.up, Color.yellow, 1f, false);
             //Debug.Log(hit.collider.gameObject.GetComponent<CrystalController>());
@@ -125,7 +126,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
            // Debug.DrawRay(transform.position, -1f * transform.up, Color.blue, 0.5f);
             if (!Physics.Raycast(transform.position, -1f * transform.up, out hit2, 0.5f))
             {
-                wallLeft = true;
+                //wallLeft = true;
             }
         }
 
@@ -250,8 +251,14 @@ public class MonsterController : MonoBehaviour, CreatureBase
             isWalled = true;
             isGrounded = false;
 
-            Vector3 target = transform.forward - Vector3.Dot(transform.forward, wallNormal) * wallNormal;
+            //Vector3 target = transform.up - Vector3.Dot(transform.up, wallNormal) * wallNormal;
+            //Debug.Log("wall normal: " + wallNormal);
+            //Vector3 target = transform.forward - Vector3.Dot(transform.forward, wallNormal) * wallNormal;
+            Vector3 target = -1*camera.transform.right - Vector3.Dot(-1*camera.transform.right, wallNormal) * wallNormal;
+            Debug.Log("camera: " + -1 * camera.transform.right + ", target: " + target + ", wall: " + wallNormal);
             transform.rotation = Quaternion.LookRotation(target.normalized, wallNormal);
+            Debug.Log("final: " + transform.forward + ", finalcam: " + -1 * camera.transform.right);
+
             transform.position = hitVector + .5f * wallNormal;
 
             gravity = 0;
