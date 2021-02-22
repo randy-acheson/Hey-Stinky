@@ -1,17 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
 using UnityEngine;
-using UnityEditor;
 using UnityEngine.UI;
 
-using System.Net.Sockets;
 using System;
-using System.Net;
-using System.Threading;
-using System.ServiceModel;
 
 public class PlayerController : MonoBehaviour, CreatureBase
 {
@@ -23,7 +17,6 @@ public class PlayerController : MonoBehaviour, CreatureBase
     public float bounce = 0.04f;
     public float mouseSensitivity = 400f;
     public float flashlightIntensity = 3.5f;
-    public string character;
 
     private bool isDead;
     
@@ -75,7 +68,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         string newUIText = "";
         // Does the ray intersect any objects excluding the player layer
         //if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
-        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
+        if (!isDead && Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
         {
             //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.yellow, 5f, false);
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
@@ -202,28 +195,28 @@ public class PlayerController : MonoBehaviour, CreatureBase
         if(Input.GetKeyDown(KeyCode.E)){
             flashlight.enabled = !flashlight.enabled;
             hand.gameObject.SetActive(!hand.gameObject.activeSelf);
-            Dictionary<string, string> tcpFlashlightCommand = new Dictionary<string, string>();
-            tcpFlashlightCommand["function"] = "toggleFlashlight";
-            tcpFlashlightCommand["playerHash"] = player_hash;
-            tcpFlashlightCommand["isLightOn"] = hand.gameObject.activeSelf.ToString();
-            AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpFlashlightCommand));
-        }
-
-        if(Input.GetKeyDown(KeyCode.L))
-        {
-            GameStart("Monster");
+            if (!isDead)
+            {
+                Dictionary<string, string> tcpFlashlightCommand = new Dictionary<string, string>();
+                tcpFlashlightCommand["function"] = "toggleFlashlight";
+                tcpFlashlightCommand["playerHash"] = player_hash;
+                tcpFlashlightCommand["isLightOn"] = hand.gameObject.activeSelf.ToString();
+                AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpFlashlightCommand));
+            }
         }
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 
         flashlight.intensity = Mathf.Min(0.5f*flashlightIntensity + (noise*4f*flashlightIntensity), flashlightIntensity);
+    
+        /////////////////////
     }
 
     private void OnMouseDown()
     {
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
-        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
+        if (!isDead && Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             //Debug.Log("Did Hit");
@@ -250,21 +243,34 @@ public class PlayerController : MonoBehaviour, CreatureBase
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Receptacle") && crystal != null)
+        if (!isDead)
         {
-            other.gameObject.GetComponent<ReceptacleScript>().AddCrystal(crystal);
-            crystal = null;
-        }
-        else if (other.gameObject.CompareTag("Goal"))
-        {
-            Debug.Log("You win!");
-            audioData.Play(0);
-        }
-        else if (other.gameObject.CompareTag("CharacterSelect"))
-        {
-            GameObject.Find("CharacterSelectors")
-                .GetComponent<CharacterSelectionController>()
-                .SelectCharacter(other.gameObject, player_hash);
+            if (other.gameObject.CompareTag("Crystal") && crystal == null)
+            {
+                if (!other.gameObject.GetComponent<CrystalController>().isDeposited)
+                {
+                    crystal = other.gameObject;
+                    other.gameObject.GetComponent<CrystalController>()
+                        .SetTransformParent(gameObject.transform);
+                    gameObject.transform.position = new Vector3(10, 10, 10);
+                }
+            }
+            else if (other.gameObject.CompareTag("Receptacle") && crystal != null)
+            {
+                other.gameObject.GetComponent<ReceptacleScript>().AddCrystal(crystal);
+                crystal = null;
+            }
+            else if (other.gameObject.CompareTag("Goal"))
+            {
+                Debug.Log("You win!");
+                audioData.Play(0);
+            }
+            else if (other.gameObject.CompareTag("CharacterSelect"))
+            {
+                GameObject.Find("CharacterSelectors")
+                    .GetComponent<CharacterSelectionController>()
+                    .SelectCharacter(other.gameObject, player_hash);
+            }
         }
     }
 
@@ -280,21 +286,6 @@ public class PlayerController : MonoBehaviour, CreatureBase
                 .GetComponent<CharacterSelectionController>()
                 .DeselectCharacter(other.gameObject, player_hash);
         }
-    }
-
-    public void GameStart(string character)
-    {
-        this.character = character;
-        Debug.Log("You are " + character);
-
-        if (character == "Monster")
-        {
-            // create and send seed
-        }
-
-        var newPos = GameObject.Find("PlayerSpawns")
-            .GetComponent<PlayerSpawnsController>().GetSpawn(69);
-        controller.Move(newPos - gameObject.transform.position);
     }
 
     public Dictionary<String, String> getPositionDict() {
