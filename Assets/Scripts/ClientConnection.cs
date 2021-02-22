@@ -50,7 +50,12 @@ public class ClientConnection : MonoBehaviour {
         receiveClient = new UdpClient(5005);
         senderClient = new UdpClient(5006);
 
-        IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.61"), 5006); // endpoint where server is listening
+
+        // raspberry pi
+        IPEndPoint ep = new IPEndPoint(IPAddress.Parse("96.233.50.128"), 5006); // endpoint where server is listening
+        
+        // andrew
+        // IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.61"), 5006); // endpoint where server is listening
         senderClient.Connect(ep);
 
         tryLoadCreatureScripts();
@@ -342,7 +347,12 @@ public class ClientConnection : MonoBehaviour {
 }
 
 public class AsyncTCPClient {
-    private const string SERVER_ADDR = "192.168.86.61";
+    // raspberry pi
+    private const string SERVER_ADDR = "96.233.50.128";
+    
+    // andrew
+    // private const string SERVER_ADDR = "192.168.86.61";
+    
     private const int PORT = 7777;
 
     private static ManualResetEvent connectDone = 
