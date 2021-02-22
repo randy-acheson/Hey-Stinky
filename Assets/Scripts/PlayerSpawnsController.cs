@@ -31,8 +31,8 @@ public class PlayerSpawnsController : MonoBehaviour
         var randomValues = Enumerable.Range(0, allSpawns.Count)
             .OrderBy(x => r.Next()).Take(4).ToList();
 
-        var myHash = GameObject.Find("playerPrefab")
-            .GetComponent<PlayerController>().get_player_hash();
+        var myHash = FindObjectOfType<ClientConnection>()
+            .current_creature_script.get_player_hash();
 
         var playerHolder = FindObjectOfType<ClientConnection>().player_holder;
         var players = new List<string>(playerHolder.Keys);
