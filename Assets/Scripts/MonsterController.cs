@@ -34,6 +34,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
     private Text uiText;
     private bool isClicking = false;
+    private bool isAttacking = false;
     private bool wallClicked = false;
     private bool wallLeft = false;
     private Vector3 wallNormal;
@@ -101,7 +102,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
                     newUIText = obj.getHoverMessage();
                 }
             }
-            else if (hit.transform.CompareTag("House") && isClicking && hit.distance < 2)
+            else if (hit.transform.gameObject.layer == 8 && isClicking && hit.distance < 2)
             {
                 //Debug.Log("Walling");
                 wallClicked = true;
@@ -127,6 +128,50 @@ public class MonsterController : MonoBehaviour, CreatureBase
                 wallLeft = true;
             }
         }
+
+        if (isAttacking)
+        {
+            animator.SetTrigger("attack");
+            string playerHit = "";
+            RaycastHit hit3;
+
+            //Debug.DrawRay(camera.transform.position, camera.transform.up, Color.green, 1.5f);
+            //Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.blue, 1.5f);
+            Debug.DrawRay(camera.transform.position, -1 * camera.transform.right, Color.red, 1.5f);
+            // Does the ray intersect any objects excluding the player layer
+            //if (Physics.Raycast(camera.transform.position, -1 * camera.transform.right, out hit3, Mathf.Infinity))
+            if (Physics.SphereCast(camera.transform.position, 0.5f, -1 * camera.transform.right, out hit3, 1f))
+            {
+
+                Debug.Log("Did Hit");
+
+                //PlayerController obj = hit.transform.GetComponent<PlayerController>();
+                if (hit3.transform.Find("Head/Hand/Flashlight") != null)
+                //if (obj != null)
+                {
+
+                    ClientConnection client = GameObject.FindObjectOfType<ClientConnection>();
+                    foreach (string key in client.player_holder.Keys)
+                    {
+                        if (client.player_holder[key].Item1 == hit3.transform.gameObject)
+                        {
+                            playerHit = key;
+                            break;
+                        }
+                    }
+                    Debug.Log("killed " + playerHit);
+                }
+            }
+
+            Dictionary<string, string> tcpAttackCommand = new Dictionary<string, string>();
+            tcpAttackCommand["function"] = "monsterAction";
+            tcpAttackCommand["action"] = "attack";
+            tcpAttackCommand["playerHash"] = player_hash;
+            tcpAttackCommand["playerHit"] = playerHit;
+            AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpAttackCommand));
+
+            isAttacking = false;
+        }
     }
 
     public GameObject getGameObject() {
@@ -147,6 +192,11 @@ public class MonsterController : MonoBehaviour, CreatureBase
         if (Input.GetMouseButtonDown(0))
         {
             isClicking = true;
+        }
+
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            isAttacking = true;
         }
 
         if (Input.GetKey(KeyCode.LeftControl)){
@@ -286,41 +336,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
         ////////////////////////////////
 
-        if(Input.GetKeyDown(KeyCode.E)){
-            animator.SetTrigger("attack");
-            string playerHit = "";
-            RaycastHit hit;
-            Debug.DrawRay(camera.transform.position, camera.transform.up, Color.red, 1.5f);
-            // Does the ray intersect any objects excluding the player layer
-            if (Physics.Raycast(camera.transform.position, camera.transform.up, out hit, 1.5f))
-            {
-                
-                Debug.Log("Did Hit");
 
-                //PlayerController obj = hit.transform.GetComponent<PlayerController>();
-                if(hit.transform.Find("Head/Hand/Flashlight") != null)
-                //if (obj != null)
-                {
-                    
-                    ClientConnection client = GameObject.FindObjectOfType<ClientConnection>();
-                    foreach (string key in client.player_holder.Keys) {
-                        if (client.player_holder[key].Item1 == hit.transform.gameObject)
-                        {
-                            playerHit = key;
-                            break;
-                        }
-                    }
-                    Debug.Log("killed " + playerHit);
-                }
-            }
-
-            Dictionary<string, string> tcpAttackCommand = new Dictionary<string, string>();
-            tcpAttackCommand["function"] = "monsterAction";
-            tcpAttackCommand["action"] = "attack";
-            tcpAttackCommand["playerHash"] = player_hash;
-            tcpAttackCommand["playerHit"] = playerHit;
-            AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpAttackCommand));
-        }
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 

@@ -48,22 +48,31 @@ public class DictCommandEvaluator {
             if (player != null && player != client_connection_script.current_creature_script.getGameObject())
             {
                 Animator target_animator = player.GetComponent<Animator>();
-                if(args.ContainsKey("action"))
+                if (target_animator != null)
                 {
-                    target_animator.SetTrigger(args["action"]);
+                    if (args.ContainsKey("action"))
+                    {
+                        target_animator.SetTrigger(args["action"]);
+                    }
+                    else if (args.ContainsKey("movementState"))
+                    {
+                        target_animator.SetInteger("movementState", int.Parse(args["movementState"]));
+                    }
                 }
-                else if (args.ContainsKey("movementState"))
-                {
-                    target_animator.SetInteger("movementState", int.Parse(args["movementState"]));
-                }
+            }
+            else
+            {
+                //Debug.Log("action");
             }
 
             string hitName = args["playerHit"];
             if (hitName != "")
             {
+                Debug.Log("hit player: " + hitName);
                 GameObject playerHit = client_connection_script.GetRemotePlayer(hitName);
-                if (playerHit == client_connection_script.current_creature_script.getGameObject())
+                if (playerHit == null)
                 {
+                    playerHit = client_connection_script.current_creature_script.getGameObject();
                     playerHit.GetComponent<PlayerController>().Die();
                 }
                 else

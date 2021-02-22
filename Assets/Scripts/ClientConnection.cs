@@ -203,34 +203,36 @@ public class ClientConnection : MonoBehaviour {
         FindObjectOfType<CrystalSpawnController>().SpawnCrystals(rSeed);
     }
 
-    public GameObject GetRemotePlayer(String username, String prefabname="default_lmao") {
+    public void GenerateRemotePlayerStoreInDict(String username, String prefabname) {
+        Debug.Log("instantiating multiplayer entity named: " + username);
+        GameObject new_guy = null;
+        try {
+            if (prefabname == "playerPrefab") {
+                new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+            else if (prefabname == "crawler") {
+                new_guy = Instantiate(crawler, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+            else {
+                Debug.Log("WARNING COULD NOT FIND THE PLAYERPREFAB: " + prefabname);
+                new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+            Debug.Log("instantiated player: " + username);
+            player_holder[username] = new Tuple<GameObject, DateTime>(new_guy, DateTime.Now + TimeSpan.FromSeconds(3));
+            Debug.Log(player_holder[username].Item1);
+        }
+        catch (Exception e) {
+            Debug.Log(e);
+            Application.Quit();
+        }
+    }
+
+    public GameObject GetRemotePlayer(String username) {
         if (username == current_creature_script.get_player_hash()) {
             return null;
         }
 
         if (!player_holder.ContainsKey(username)) {
-            Debug.Log("instantiating multiplayer entity named: " + username);
-            GameObject new_guy = null;
-            try {
-                if (prefabname == "playerPrefab") {
-                    new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
-                }
-                else if (prefabname == "crawler") {
-                    new_guy = Instantiate(crawler, new Vector3(0, 0, 0), Quaternion.identity);
-                }
-                else {
-                    Debug.Log("WARNING COULD NOT FIND THE PLAYERPREFAB: " + prefabname);
-                    new_guy = Instantiate(playerPrefabNoCodeReal, new Vector3(0, 0, 0), Quaternion.identity);
-                }
-                Debug.Log("instantiated player: " + username);
-                player_holder[username] = new Tuple<GameObject, DateTime>(new_guy, DateTime.Now + TimeSpan.FromSeconds(3));
-                Debug.Log(player_holder[username].Item1);
-                return new_guy;            
-            }
-            catch (Exception e) {
-                Debug.Log(e);
-                Application.Quit();
-            }
             return null;
         }
         else {
@@ -341,11 +343,15 @@ public class ClientConnection : MonoBehaviour {
                 return;
             }
 
-            if (all_dict.ContainsKey("prefab_name")) {
-                remotePlayer = GetRemotePlayer(all_dict["player_hash"], all_dict["prefab_name"]);
-            }
-            else {
+            remotePlayer = GetRemotePlayer(all_dict["player_hash"]);
+            if (remotePlayer == null) {
+                GenerateRemotePlayerStoreInDict(all_dict["player_hash"], all_dict["prefab_name"]);
                 remotePlayer = GetRemotePlayer(all_dict["player_hash"]);
+            }
+
+            if (remotePlayer == null) {
+                Debug.Log("something horrible has happened, contact andrew");
+                UnityEditor.EditorApplication.isPlaying = false;
             }
 
             if (remotePlayer != null) {
