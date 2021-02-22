@@ -51,10 +51,10 @@ public class ClientConnection : MonoBehaviour {
 
 
         // raspberry pi
-        IPEndPoint ep = new IPEndPoint(IPAddress.Parse("96.233.50.128"), 5006); // endpoint where server is listening
+        // IPEndPoint ep = new IPEndPoint(IPAddress.Parse("96.233.50.128"), 5006); // endpoint where server is listening
         
         // andrew
-        // IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.61"), 5006); // endpoint where server is listening
+        IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.61"), 5006); // endpoint where server is listening
         senderClient.Connect(ep);
 
         tryLoadCreatureScripts();
@@ -387,10 +387,10 @@ public class ClientConnection : MonoBehaviour {
 
 public class AsyncTCPClient {
     // raspberry pi
-    private const string SERVER_ADDR = "96.233.50.128";
+    // private const string SERVER_ADDR = "96.233.50.128";
     
     // andrew
-    // private const string SERVER_ADDR = "192.168.86.61";
+    private const string SERVER_ADDR = "192.168.86.61";
     
     private const int PORT = 7777;
 
