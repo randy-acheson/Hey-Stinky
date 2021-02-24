@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
     private bool isDead;
     
     private Transform body;
-    private Transform camera;
+    private Transform head;
     private Transform hand;
     private CharacterController controller;
     private Light flashlight;
@@ -40,10 +40,10 @@ public class PlayerController : MonoBehaviour, CreatureBase
     
     void Start()
     {
-        controller = gameObject.GetComponent<CharacterController>();
-        camera = transform.GetChild(0);
+        controller = GetComponent<CharacterController>();
+        head = transform.GetChild(0);
         body = transform.GetChild(1);
-        hand = camera.GetChild(0);
+        hand = head.GetChild(0);
         flashlight = hand.GetChild(0).GetComponent<Light>();
         player_hash = generatePlayerHash();
         uiText = GetComponentInChildren<Text>();
@@ -66,7 +66,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         RaycastHit hit;
         string newUIText = "";
         // Does the ray intersect any objects excluding the player layer
-        if (!isDead && Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
+        if (!isDead && Physics.Raycast(head.transform.position, head.transform.forward, out hit, Mathf.Infinity))
         {
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
             if (obj != null)
@@ -164,7 +164,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
 
         body.localPosition = new Vector3(horiBob*bounce*0.5f, 0.9f+vertBob*bounce, 0f);
         //body.transform.localRotation = Quaternion.Euler(0f, 0f, horiBob*-0.0244f);
-        camera.localPosition = new Vector3(horiBob*bounce*0.5f, 1.68f+vertBob*bounce, 0f);
+        head.localPosition = new Vector3(horiBob*bounce*0.5f, 1.68f+vertBob*bounce, 0f);
 
         controller.Move(transform.right*posX + transform.forward*posZ + transform.up*posY);
 
@@ -176,7 +176,7 @@ public class PlayerController : MonoBehaviour, CreatureBase
         rotX -= mouseY;
         rotX = Mathf.Clamp(rotX, -85f, 85f);
 
-        camera.localRotation = Quaternion.Euler(rotX, 0f, 0f);
+        head.localRotation = Quaternion.Euler(rotX, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
 
         /////////////////////////////////
@@ -285,9 +285,9 @@ public class PlayerController : MonoBehaviour, CreatureBase
     }
 
     public Dictionary<String, String> getPositionDict() {
-        Vector3 player_xyz_pos = gameObject.transform.position;
-        Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
-        float head_x_rot = gameObject.transform.GetChild(0).eulerAngles.x;
+        Vector3 player_xyz_pos = transform.position;
+        Vector3 player_xyz_rot = transform.eulerAngles;
+        float head_x_rot = head.eulerAngles.x;
 
         Dictionary<String, String> dict = new Dictionary<String, String> {
             {"player_hash", player_hash},

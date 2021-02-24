@@ -12,15 +12,14 @@ public class MonsterController : MonoBehaviour, CreatureBase
     public float speed = 4f;
     public float gravity = -9.81f;
     public float bounce = 0.04f;
-    public float mouseSensitivity = 0.1f;
+    public float mouseSensitivity = 400f;
 
-    public Transform headBone;
+    private Transform headBone;
     
     private float maxSpeed;
 
-    private Transform body;
-    private Transform camera;
-    //private Transform hand;
+    private Transform head;
+
     private CharacterController controller;
     //private Light flashlight;
     private float velY = 0f;
@@ -47,19 +46,15 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
     void Start()
     {
-        controller = gameObject.GetComponent<CharacterController>();
-        headBone = gameObject.transform.Find("Armature/Bone/Bone.003/Bone.004/Bone.005/Bone.006/Bone.007").gameObject.transform;
-        camera = transform.Find("HeadObject");
-        body = transform.Find("crawler_low");
-        //hand = camera.GetChild(0);
+        controller = GetComponent<CharacterController>();
+        headBone = transform.Find("Body/Armature/Bone/Bone.003/Bone.004/Bone.005/Bone.006/Bone.007");
+        head = transform.Find("Head");
         player_hash = generatePlayerHash();
         uiText = GetComponentInChildren<Text>();
 
         Cursor.lockState = CursorLockMode.Locked;
 
-        //headBone = gameObject.transform.Find("Armature/Bone/Bone.003/Bone.004/Bone.005/Bone.006/HeadObject").gameObject;
-
-        animator = GetComponent<Animator>();
+        animator = transform.Find("Body").GetComponent<Animator>();
         maxSpeed = speed;
     }
 
@@ -83,7 +78,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
         string newUIText = "";
         RaycastHit hit;
         // Does the ray intersect any objects excluding the player layer
-        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity))
+        if (Physics.Raycast(head.transform.position, head.transform.forward, out hit, Mathf.Infinity))
         {
             //Debug.Log(hit.collider.gameObject.GetComponent<CrystalController>());
             var obj = hit.collider.gameObject.GetComponent<InteractiveObject>();
@@ -134,7 +129,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
             RaycastHit hit3;
 
             // Does the ray intersect any objects excluding the player layer
-            if (Physics.SphereCast(camera.transform.position, 0.5f, camera.transform.forward, out hit3, 1f))
+            if (Physics.SphereCast(head.transform.position, 0.5f, head.transform.forward, out hit3, 1f))
             {
 
                 Debug.Log("Did Hit");
@@ -241,6 +236,10 @@ public class MonsterController : MonoBehaviour, CreatureBase
         }
         //Debug.Log("grounded: " + isGrounded + ", vel: " + velY);
 
+        Debug.DrawRay(transform.position, transform.forward, Color.blue);
+        Debug.DrawRay(transform.position, transform.up, Color.green);
+        Debug.DrawRay(transform.position, transform.right, Color.red);
+
         if (wallClicked)
         {
             isWalled = true;
@@ -248,13 +247,13 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
             //Vector3 target = transform.up - Vector3.Dot(transform.up, wallNormal) * wallNormal;
             //Debug.Log("wall normal: " + wallNormal);
-            Vector3 target = camera.transform.forward - Vector3.Dot(camera.transform.forward, wallNormal) * wallNormal;
-            //Debug.Log("camera: " + camera.transform.forward + ", target: " + target + ", wall: " + wallNormal);
+            Vector3 target = head.transform.forward - Vector3.Dot(head.transform.forward, wallNormal) * wallNormal;
+            //Debug.Log("head: " + head.transform.forward + ", target: " + target + ", wall: " + wallNormal);
             if(target.magnitude == 0){
                 target = transform.up;
             }
             transform.rotation = Quaternion.LookRotation(target.normalized, wallNormal);
-            //Debug.Log("final: " + transform.forward + ", finalcam: " + camera.transform.forward);
+            //Debug.Log("final: " + transform.forward + ", finalcam: " + head.transform.forward);
 
             //transform.position = hitVector;
             controller.Move(hitVector - transform.position);
@@ -268,8 +267,11 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         float posZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
+        float posY = velY * Time.deltaTime;
+        
+        controller.Move(transform.forward * posZ + transform.right * posX + transform.up * posY);
 
-        int newAnimatorState;
+        int newAnimatorState = 0;
         if (Mathf.Abs(controller.velocity.x) > 0 || Mathf.Abs(controller.velocity.z) > 0)
         {
             if (speed > 2.5) {
@@ -280,51 +282,20 @@ public class MonsterController : MonoBehaviour, CreatureBase
                 newAnimatorState = 1;
             }
         }
-        else
-        {
-            newAnimatorState = 0;
-        }
-        animator.SetInteger("movementState", newAnimatorState);
-        /*if (animator.GetInteger("movementState") != newAnimatorState)
+        
+        //animator.SetInteger("movementState", newAnimatorState);
+        if (animator.GetInteger("movementState") != newAnimatorState)
         {
             animator.SetInteger("movementState", newAnimatorState);
+            /*
             Dictionary<string, string> tcpMoveCommand = new Dictionary<string, string>();
             tcpMoveCommand["function"] = "monsterAction";
             tcpMoveCommand["movementState"] = newAnimatorState.ToString();
             tcpMoveCommand["playerHash"] = player_hash;
             tcpMoveCommand["playerHit"] = "";
             AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpMoveCommand));
-        }*/
-
-        if (isGrounded && (posX !=0 || posZ != 0))
-        {
-            movement = (movement + 1.5f * Mathf.Max(Mathf.Abs(posX), Mathf.Abs(posZ))) % (Mathf.PI*2f);
+            */
         }
-        else if(movement < Mathf.PI*0.5f)
-        {
-            movement = Mathf.Max(movement - 5f*Time.deltaTime, 0f);
-        }
-        else if(movement >= Mathf.PI*0.5f && movement < Mathf.PI)
-        {
-            movement = Mathf.Min(movement + 5f*Time.deltaTime, Mathf.PI);
-        }
-        else if(movement >= Mathf.PI && movement < Mathf.PI*1.5f)
-        {
-            movement = Mathf.Max(movement - 5f*Time.deltaTime, Mathf.PI);
-        }
-        else if(movement >= Mathf.PI*1.5f)
-        {
-            movement = Mathf.Min(movement + 5f*Time.deltaTime, Mathf.PI*2f);
-        }
-
-        float vertBob = Mathf.Abs(Mathf.Sin(movement + Mathf.PI*0.5f));
-        float horiBob = Mathf.Sin(movement);
-
-        float posY = velY * Time.deltaTime;
-
-        body.localPosition = new Vector3(horiBob*bounce*0.5f, 0.9f+vertBob*bounce, 0f);
-        
-        controller.Move(transform.forward * posZ + transform.right * posX + transform.up * posY);
 
         /////////////////////////////////
 
@@ -334,7 +305,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
         rotX += mouseY;
         rotX = Mathf.Clamp(rotX, -85f, 85f);
 
-        camera.localRotation = Quaternion.Euler(rotX, 0f, 0f);
+        head.localRotation = Quaternion.Euler(rotX, 0f, 0f);
         //headBone.localRotation = Quaternion.Euler(rotX, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
 
@@ -404,9 +375,9 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
     public Dictionary<String, String> getPositionDict()
     {
-        Vector3 player_xyz_pos = gameObject.transform.position;
-        Vector3 player_xyz_rot = gameObject.transform.eulerAngles;
-        float head_x_rot = camera.eulerAngles.x;
+        Vector3 player_xyz_pos = transform.position;
+        Vector3 player_xyz_rot = transform.eulerAngles;
+        float head_x_rot = head.eulerAngles.x;
 
         Dictionary<String, String> dict = new Dictionary<String, String> {
             {"player_hash", player_hash},
