@@ -28,7 +28,6 @@ public class PlayerController : MonoBehaviour, CreatureBase
     private float velY = 0f;
     private float rotX = 0;
     private float movement = 0f;
-    private bool isGrounded = true;
     private GameObject crystal;
 
     private DateTime next_update = DateTime.Now;
@@ -49,16 +48,6 @@ public class PlayerController : MonoBehaviour, CreatureBase
         uiText = GetComponentInChildren<Text>();
 
         Cursor.lockState = CursorLockMode.Locked;
-    }
-
-    void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if (hit.normal.y > 0.1) {
-            isGrounded = true;
-            velY = 0;
-        } else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
-            velY = 0;
-        }
     }
 
     private void FixedUpdate()
@@ -100,10 +89,6 @@ public class PlayerController : MonoBehaviour, CreatureBase
             UnityEditor.EditorApplication.isPlaying = false; 
         }
 
-        if(!Physics.CheckSphere(transform.position + (transform.up*0.15f), 0.2f, 1<<8)){
-            isGrounded = false;
-        }
-
         if (Input.GetMouseButtonDown(0))
         {
             isClicking = true;
@@ -121,22 +106,29 @@ public class PlayerController : MonoBehaviour, CreatureBase
             speed = 4;
         }
 
-        if(isGrounded){
+        float posY = -0.02f;
+
+        if((controller.collisionFlags & CollisionFlags.Below) != 0){
             if(Input.GetKeyDown(KeyCode.Space)){
                 velY = 4;
-                isGrounded = false;
+                posY = velY * Time.deltaTime;
+                //isGrounded = false;
             }else{
                 velY = 0;
             }
+        }else if ((controller.collisionFlags & CollisionFlags.Above) != 0){
+            velY = 0;
         }else{
             velY += gravity * Time.deltaTime;
+            posY = velY * Time.deltaTime;
         }
-        //Debug.Log("grounded: " + isGrounded + ", vel: " + velY);
+        
+        //Debug.Log("grounded: " + controller.isGrounded + ", vel: " + velY);
 
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         float posZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
 
-        if(isGrounded && (posX != 0 || posZ != 0))
+        if(controller.isGrounded && (posX != 0 || posZ != 0))
         {
             movement = (movement + 1.5f * Mathf.Max(Mathf.Abs(posX), Mathf.Abs(posZ))) % (Mathf.PI*2f);
         }
@@ -159,8 +151,6 @@ public class PlayerController : MonoBehaviour, CreatureBase
 
         float vertBob = Mathf.Abs(Mathf.Sin(movement));
         float horiBob = Mathf.Sin(movement);
-
-        float posY = velY * Time.deltaTime;
 
         body.localPosition = new Vector3(horiBob*bounce*0.5f, 0.9f+vertBob*bounce, 0f);
         //body.transform.localRotation = Quaternion.Euler(0f, 0f, horiBob*-0.0244f);

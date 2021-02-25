@@ -200,10 +200,12 @@ public class MonsterController : MonoBehaviour, CreatureBase
             speed = maxSpeed/2;
         }
 
-        if(isGrounded){
+        float posY = -0.02f;
+
+        if((controller.collisionFlags & CollisionFlags.Below) != 0){
             if(Input.GetKeyDown(KeyCode.Space)){
                 velY = 4;
-                isGrounded = false;
+                posY = velY * Time.deltaTime;
                 /*
                 animator.SetTrigger("jump");
                 Dictionary<string, string> tcpJumpCommand = new Dictionary<string, string>();
@@ -213,10 +215,11 @@ public class MonsterController : MonoBehaviour, CreatureBase
                 tcpJumpCommand["playerHit"] = "";
                 AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpJumpCommand));
                 */
-            }
-            else{
+            }else{
                 velY = 0;
             }
+        }else if ((controller.collisionFlags & CollisionFlags.Above) != 0){
+            velY = 0;
         }else{
             if (Input.GetKeyDown(KeyCode.Space) || wallLeft)
             {
@@ -232,13 +235,10 @@ public class MonsterController : MonoBehaviour, CreatureBase
                 transform.rotation = Quaternion.LookRotation(newForward.normalized, Vector3.up);
                 wallLeft = false;
             }
-            velY += gravity * Time.deltaTime;
-        }
-        //Debug.Log("grounded: " + isGrounded + ", vel: " + velY);
 
-        Debug.DrawRay(transform.position, transform.forward, Color.blue);
-        Debug.DrawRay(transform.position, transform.up, Color.green);
-        Debug.DrawRay(transform.position, transform.right, Color.red);
+            velY += gravity * Time.deltaTime;
+            posY = velY * Time.deltaTime;
+        }
 
         if (wallClicked)
         {
@@ -267,7 +267,6 @@ public class MonsterController : MonoBehaviour, CreatureBase
 
         float posX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         float posZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
-        float posY = velY * Time.deltaTime;
         
         controller.Move(transform.forward * posZ + transform.right * posX + transform.up * posY);
 
