@@ -25,7 +25,6 @@ public class MonsterController : MonoBehaviour, CreatureBase
     private float velY = 0f;
     private float rotX = 0;
     private float movement = 0f;
-    private bool isGrounded = true;
     private bool isWalled = false;
     private GameObject crystal;
 
@@ -63,13 +62,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
         //Debug.Log("hit: " + hit.normal);
         if(!isWalled && hit.normal.y > 0.1){
             // Debug.Log("hitting wrong thing");
-
-            isGrounded = true;
             gravity = -9.81f;
-            velY = 0;
-        }
-        else if(hit.normal.y < -0.9 && hit.moveDirection.y > 0 && velY > 0){
-            velY = 0;
         }
     }
 
@@ -174,10 +167,6 @@ public class MonsterController : MonoBehaviour, CreatureBase
             UnityEditor.EditorApplication.isPlaying = false; 
         }
 
-        if(!Physics.CheckSphere(transform.position + (transform.up*0.15f), 0.2f, 1<<8)){
-            isGrounded = false;
-        }
-
         if (Input.GetMouseButtonDown(0))
         {
             isClicking = true;
@@ -243,7 +232,6 @@ public class MonsterController : MonoBehaviour, CreatureBase
         if (wallClicked)
         {
             isWalled = true;
-            isGrounded = false;
 
             //Vector3 target = transform.up - Vector3.Dot(transform.up, wallNormal) * wallNormal;
             //Debug.Log("wall normal: " + wallNormal);
