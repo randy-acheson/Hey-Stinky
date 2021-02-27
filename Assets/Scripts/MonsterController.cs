@@ -195,7 +195,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
             if(Input.GetKeyDown(KeyCode.Space)){
                 velY = 4;
                 posY = velY * Time.deltaTime;
-                /*
+                
                 animator.SetTrigger("jump");
                 Dictionary<string, string> tcpJumpCommand = new Dictionary<string, string>();
                 tcpJumpCommand["function"] = "monsterAction";
@@ -203,7 +203,7 @@ public class MonsterController : MonoBehaviour, CreatureBase
                 tcpJumpCommand["playerHash"] = player_hash;
                 tcpJumpCommand["playerHit"] = "";
                 AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpJumpCommand));
-                */
+                
             }else{
                 velY = 0;
             }
@@ -274,14 +274,14 @@ public class MonsterController : MonoBehaviour, CreatureBase
         if (animator.GetInteger("movementState") != newAnimatorState)
         {
             animator.SetInteger("movementState", newAnimatorState);
-            /*
+            
             Dictionary<string, string> tcpMoveCommand = new Dictionary<string, string>();
             tcpMoveCommand["function"] = "monsterAction";
             tcpMoveCommand["movementState"] = newAnimatorState.ToString();
             tcpMoveCommand["playerHash"] = player_hash;
             tcpMoveCommand["playerHit"] = "";
             AsyncTCPClient.Send(ClientConnection.dictmuncher(tcpMoveCommand));
-            */
+            
         }
 
         /////////////////////////////////

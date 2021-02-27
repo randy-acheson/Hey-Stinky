@@ -19,8 +19,7 @@ public class ClientConnection : MonoBehaviour {
     public GameObject playerWithCode;
     public GameObject crawler;
     public GameObject crawlerWithCode;
-    UdpClient senderClient;
-    UdpClient receiveClient;
+    UdpClient udpClient;
     DateTime next_update = DateTime.Now;
     const int bufferSize = 1024;
     
@@ -46,23 +45,18 @@ public class ClientConnection : MonoBehaviour {
     void Start() {
         Debug.Log("Started Client Code");
         AsyncTCPClient.StartClient();
-        receiveClient = new UdpClient(5005);
-        senderClient = new UdpClient(5006);
+        udpClient = new UdpClient(5005);
 
-
-        // raspberry pi
-        // IPEndPoint ep = new IPEndPoint(IPAddress.Parse("96.233.50.128"), 5006); // endpoint where server is listening
-        
-        // andrew
-        IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.61"), 5006); // endpoint where server is listening
-        senderClient.Connect(ep);
+        //IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.55"), 5006); // endpoint where server is listening
+        IPEndPoint ep = new IPEndPoint(IPAddress.Parse("96.233.50.128"), 5006); // endpoint where server is listening
+        udpClient.Connect(ep);
 
         tryLoadCreatureScripts();
 
         UdpState state = new UdpState();
         state.ip = RemoteIpEndPoint;
-        state.client = receiveClient;
-        receiveClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
+        state.client = udpClient;
+        udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
         Debug.Log("started first UDP listen");
     }
 
@@ -299,8 +293,8 @@ public class ClientConnection : MonoBehaviour {
 
         UdpState state = new UdpState();
         state.ip = RemoteIpEndPoint;
-        state.client = receiveClient;
-        receiveClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
+        state.client = udpClient;
+        udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), state);
     }
 
     private void process_tcp_messege(String msg) {
@@ -343,6 +337,7 @@ public class ClientConnection : MonoBehaviour {
         try {
             GameObject remotePlayer = null;
             Dictionary<String, String> all_dict = stringmuncher(msg);
+            //Debug.Log("player: " + all_dict["player_hash"]);
 
             if (all_dict["player_hash"] == current_creature_script.get_player_hash()) {
                 return;
@@ -383,7 +378,7 @@ public class ClientConnection : MonoBehaviour {
         try {
             Byte[] sendBytes = Encoding.ASCII.GetBytes(message);
             // Debug.Log("sending update " + message);
-            senderClient.Send(sendBytes, sendBytes.Length);
+            udpClient.Send(sendBytes, sendBytes.Length);
         }
 
         catch (Exception e ) {
@@ -394,10 +389,8 @@ public class ClientConnection : MonoBehaviour {
 
 public class AsyncTCPClient {
     // raspberry pi
-    // private const string SERVER_ADDR = "96.233.50.128";
-    
-    // andrew
-    private const string SERVER_ADDR = "192.168.86.61";
+    //private const string SERVER_ADDR = "192.168.86.55";
+    private const string SERVER_ADDR = "96.233.50.128";
     
     private const int PORT = 7777;
 
