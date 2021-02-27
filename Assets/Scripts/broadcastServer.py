@@ -3,7 +3,6 @@ import socket
 import sys
 import threading
 
-HOST_ADDR = "192.168.86.55"
 TCP_PORT = 7777
 
 subscribers = set()
@@ -11,7 +10,7 @@ mutex = threading.Lock()
 
 def serverStartup():
     s_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s_tcp.bind((HOST_ADDR, TCP_PORT))
+    s_tcp.bind(('', TCP_PORT))
     s_tcp.listen()
 
     while True:
@@ -48,3 +47,5 @@ signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 
 serverStartup()
+
+s_tcp.close()

@@ -4,11 +4,10 @@ import time
 import threading
 
 
-UDP_IP = "192.168.86.55"
 UDP_PORT = 5006
 
 socket_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-socket_server.bind((UDP_IP, UDP_PORT))
+socket_server.bind(('', UDP_PORT))
 socket_server.settimeout(1)
 
 addrs = {}
