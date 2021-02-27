@@ -3,7 +3,7 @@ import socket
 import sys
 import threading
 
-HOST_ADDR = "192.168.86.61"
+HOST_ADDR = "192.168.86.55"
 TCP_PORT = 7777
 
 subscribers = set()
