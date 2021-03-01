@@ -15,8 +15,10 @@ def serverStartup():
 
     while True:
         connection, client_addr = s_tcp.accept()
+        mutex.acquire()
         subscribers.add(connection)
-        t = threading.Thread(target=spawnTCPConnection, args=(connection,), daemon=True)
+        mutex.release()
+        t = threading.Thread(target=spawnTCPConnection, args=(connection,))
         t.start()
 
 def spawnTCPConnection(connection):
@@ -31,12 +33,14 @@ def spawnTCPConnection(connection):
             print("Connection Killed")
             break
 
-        mutex.acquire();
+        mutex.acquire()
         for s in subscribers:
             s.sendall(tcp_data)
-        mutex.release();
+        mutex.release()
 
+    mutex.acquire()
     subscribers.remove(connection)
+    mutex.release()
     connection.close()
     sys.exit(0)
 
