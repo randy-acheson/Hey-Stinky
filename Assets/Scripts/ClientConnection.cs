@@ -30,6 +30,8 @@ public class ClientConnection : MonoBehaviour {
 
     IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
+    IPAddress server_addr;
+
     public int rSeed = -1;
 
     public object udp_lock = new object();
@@ -44,11 +46,24 @@ public class ClientConnection : MonoBehaviour {
 
     void Start() {
         Debug.Log("Started Client Code");
-        AsyncTCPClient.StartClient();
+        server_addr = IPAddress.Parse("173.76.229.21");
+        /*
+        IPAddress[] addresses = Dns.GetHostAddresses("http://heminway.mooo.com");
+
+        if (addresses.Length > 0)
+        {
+            server_addr = addresses[0];
+            Debug.Log("found");
+        }else{   
+            Debug.Log("not found");
+        }
+        */
+
+        AsyncTCPClient.StartClient(server_addr);
         udpClient = new UdpClient(5005);
 
         //IPEndPoint ep = new IPEndPoint(IPAddress.Parse("192.168.86.55"), 5006); // endpoint where server is listening
-        IPEndPoint ep = new IPEndPoint(IPAddress.Parse("96.233.50.128"), 5006); // endpoint where server is listening
+        IPEndPoint ep = new IPEndPoint(server_addr, 5006); // endpoint where server is listening
         udpClient.Connect(ep);
 
         tryLoadCreatureScripts();
@@ -389,8 +404,6 @@ public class ClientConnection : MonoBehaviour {
 
 public class AsyncTCPClient {
     // raspberry pi
-    //private const string SERVER_ADDR = "192.168.86.55";
-    private const string SERVER_ADDR = "96.233.50.128";
     
     private const int PORT = 7777;
 
@@ -412,9 +425,9 @@ public class AsyncTCPClient {
 
     private static ClientConnection client_connection_script = GameObject.FindObjectOfType<ClientConnection>();
 
-    public static void StartClient() {
+    public static void StartClient(IPAddress server_addr) {
         Socket s_tcp = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        IPEndPoint serverEP = new IPEndPoint(IPAddress.Parse(SERVER_ADDR), PORT);
+        IPEndPoint serverEP = new IPEndPoint(server_addr, PORT);
 
         s_tcp.BeginConnect(serverEP, new AsyncCallback(ConnectCallback), s_tcp);
         

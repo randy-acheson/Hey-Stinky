@@ -19,7 +19,7 @@ public class EricController : MonoBehaviour
     public float speed = 8f;
     public float gravity = -9.81f;
     public float bounce = 0.04f;
-    public float mouseSensitivity = 0.1f;
+    public float mouseSensitivity = 400f;
     
     private Transform body;
     private Transform camera;
@@ -28,7 +28,8 @@ public class EricController : MonoBehaviour
     private Light flashlight;
     private float rotX = 0;
     private float movement = 0f;
-    private bool isGrounded = true;
+    private float horo = 0f;
+    private float vert = 0f;
     private GameObject crystal;
 
     private DateTime next_update = DateTime.Now;
@@ -57,13 +58,6 @@ public class EricController : MonoBehaviour
 
         // client_connection = new ClientConnection(this);
         // client_connection = gameObject.AddComponent<ClientConnection>(this) as ClientConnection;
-    }
-
-    void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if(hit.normal.y > 0.5){
-            isGrounded = true;
-        }
     }
 
 
@@ -150,16 +144,23 @@ public class EricController : MonoBehaviour
         }
     }
 
+    void OnCollisionStay(Collision collisionInfo)
+    {
+        for (int i=0; i<collisionInfo.contactCount; i++){
+            ContactPoint contact = collisionInfo.GetContact(i);
+            Debug.DrawRay(contact.point, contact.normal, Color.red);
+        }
+    }
+
     private void FixedUpdate()
     {
-        lock (__lockObj) {
-            // Debug.Log(to_add.Count);
-            foreach (var msg in to_add) {
-                process_thing(msg);
-            }
-            to_add = new List<String>();
-            // Debug.Log(to_add.Count);
-        }
+        float moveX = horo * speed * Time.deltaTime;
+        float moveY = 0;
+        float moveZ = vert * speed * Time.deltaTime;
+
+        //float posY = velY * Time.deltaTime;
+        
+        GetComponent<Rigidbody>().MovePosition(transform.position + moveZ*transform.forward + moveX*transform.right + moveY*transform.up);
 
         Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.white, 5f, false);
         RaycastHit hit;
@@ -206,10 +207,6 @@ public class EricController : MonoBehaviour
             UnityEditor.EditorApplication.isPlaying = false; 
         }
 
-        if(!Physics.CheckSphere(transform.position, 0.1f)){
-            isGrounded = false;
-        }
-
         if (Input.GetMouseButtonDown(0))
         {
             isClicking = true;
@@ -227,52 +224,8 @@ public class EricController : MonoBehaviour
             speed = 4;
         }      
 
-        float velX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
-        float velY = GetComponent<Rigidbody>().velocity.y;
-        float velZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
-
-        if(isGrounded){
-            if(Input.GetKeyDown(KeyCode.Space)){
-                velY = 4;
-                isGrounded = false;
-            }
-        }
-
-        if(isGrounded && velX !=0 || velZ != 0)
-        {
-            movement = (movement + 1.5f * Mathf.Max(Mathf.Abs(velX), Mathf.Abs(velZ))) % (Mathf.PI*2f);
-        }
-        else if(movement < Mathf.PI*0.5f)
-        {
-            movement = Mathf.Max(movement - 5f*Time.deltaTime, 0f);
-        }
-        else if(movement >= Mathf.PI*0.5f && movement < Mathf.PI)
-        {
-            movement = Mathf.Min(movement + 5f*Time.deltaTime, Mathf.PI);
-        }
-        else if(movement >= Mathf.PI && movement < Mathf.PI*1.5f)
-        {
-            movement = Mathf.Max(movement - 5f*Time.deltaTime, Mathf.PI);
-        }
-        else if(movement >= Mathf.PI*1.5f)
-        {
-            movement = Mathf.Min(movement + 5f*Time.deltaTime, Mathf.PI*2f);
-        }
-
-        float vertBob = Mathf.Abs(Mathf.Sin(movement + Mathf.PI*0.5f));
-        float horiBob = Mathf.Sin(movement);
-
-        //float posY = velY * Time.deltaTime;
-
-        body.localPosition = new Vector3(horiBob*bounce*0.5f, 0.9f+vertBob*bounce, 0f);
-        //body.transform.localRotation = Quaternion.Euler(0f, 0f, horiBob*-0.0244f);
-        camera.localPosition = new Vector3(horiBob*bounce*0.5f, 1.68f+vertBob*bounce, 0f);
-
-        //controller.Move(transform.right*posX + transform.forward*posZ + Vector3.up*posY);
-
-        Vector3 newVel = new Vector3(velX, velY, velZ);
-
-        GetComponent<Rigidbody>().velocity = newVel;
+        horo = Input.GetAxis("Horizontal");
+        vert = Input.GetAxis("Vertical");
 
         /////////////////////////////////
 
@@ -301,7 +254,7 @@ public class EricController : MonoBehaviour
 
         float noise = Mathf.PerlinNoise(0, 10f*Time.time);
 
-        flashlight.intensity = Mathf.Min(40f + noise*160f, 80f);
+        //flashlight.intensity = Mathf.Min(40f + noise*160f, 80f);
     }
 
     private void OnMouseDown()
